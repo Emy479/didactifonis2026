@@ -4,12 +4,14 @@ import { useAuth } from '../../context/AuthContext';
 import { useChild } from '../../context/ChildContext';
 import TrialBanner from '../../components/TrialBanner';
 import MiHijoa from './MiHijoa';
+import ActividadesTutor from './ActividadesTutor';
+import TareasTutor from './TareasTutor';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function DashboardTutor() {
   const { user, logout } = useAuth();
-  const { children, loading, setActiveChild, loadChildren } = useChild();
+  const { children, activeChild, loading, setActiveChild, loadChildren } = useChild();
   const navigate = useNavigate();
   const [trialInfo, setTrialInfo] = useState({ show: false, daysRemaining: null });
   const [showAddChildForm, setShowAddChildForm] = useState(false);
@@ -85,6 +87,7 @@ export default function DashboardTutor() {
     { id: 'inicio', label: 'Inicio', icon: '🏠' },
     { id: 'mis-hijos', label: 'Mis hijos', icon: '👨‍👩‍👧‍👦' },
     { id: 'actividades', label: 'Actividades', icon: '🎯' },
+    { id: 'tareas', label: 'Tareas', icon: '✓' },
     { id: 'progreso', label: 'Progreso', icon: '📊' },
     { id: 'mensajes', label: 'Mensajes', icon: '💬' },
     { id: 'calendario', label: 'Calendario', icon: '📅' },
@@ -148,6 +151,10 @@ export default function DashboardTutor() {
         <main className="flex-1 overflow-hidden">
           {currentView === 'mi-hijoa' ? (
             <MiHijoa />
+          ) : currentView === 'actividades' ? (
+            <ActividadesTutor selectedChildId={activeChild?._id || null} />
+          ) : currentView === 'tareas' ? (
+            <TareasTutor selectedChildId={activeChild?._id || null} />
           ) : currentView === 'mis-hijos' || currentView === 'inicio' ? (
             <div className="h-full overflow-y-auto p-8">
               <h1 className="font-heading text-3xl font-semibold text-text-strong mb-6">
