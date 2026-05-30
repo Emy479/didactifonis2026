@@ -10,6 +10,7 @@ const healthRouter = require('./routes/health');
 const authRouter = require('./routes/auth');
 const subscriptionRouter = require('./routes/subscription');
 const paymentRouter = require('./routes/payment');
+const childrenRouter = require('./routes/children');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api', healthRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/payment', paymentRouter);
+app.use('/api/children', childrenRouter);
 
 // MongoDB connection — non-fatal: app stays up even if DB is unavailable
 const mongoUri = process.env.MONGODB_URI;

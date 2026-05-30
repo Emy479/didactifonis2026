@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ChildProvider } from './context/ChildContext';
 import PrivateRoute from './components/PrivateRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -18,41 +19,43 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* Rutas públicas */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/subscription/required" element={<SubscriptionRequired />} />
-          <Route path="/subscription/mock-confirm" element={<MockConfirm />} />
+        <ChildProvider>
+          <Routes>
+            {/* Rutas públicas */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/subscription/required" element={<SubscriptionRequired />} />
+            <Route path="/subscription/mock-confirm" element={<MockConfirm />} />
 
-          {/* Rutas protegidas — Profesional */}
-          <Route element={<PrivateRoute allowedRoles={['profesional']} />}>
-            <Route path="/pro/*" element={<DashboardPro />} />
-          </Route>
+            {/* Rutas protegidas — Profesional */}
+            <Route element={<PrivateRoute allowedRoles={['profesional']} />}>
+              <Route path="/pro/*" element={<DashboardPro />} />
+            </Route>
 
-          {/* Rutas protegidas — Tutor */}
-          <Route element={<PrivateRoute allowedRoles={['tutor']} />}>
-            <Route path="/tutor/*" element={<DashboardTutor />} />
-          </Route>
+            {/* Rutas protegidas — Tutor */}
+            <Route element={<PrivateRoute allowedRoles={['tutor']} />}>
+              <Route path="/tutor/*" element={<DashboardTutor />} />
+            </Route>
 
-          {/* Rutas protegidas — Admin */}
-          <Route element={<PrivateRoute allowedRoles={['admin']} />}>
-            <Route path="/admin/*" element={<DashboardAdmin />} />
-          </Route>
+            {/* Rutas protegidas — Admin */}
+            <Route element={<PrivateRoute allowedRoles={['admin']} />}>
+              <Route path="/admin/*" element={<DashboardAdmin />} />
+            </Route>
 
-          {/* Niño: accede siempre vía sesión activa del tutor (spec §2) */}
-          <Route element={<PrivateRoute allowedRoles={['tutor']} />}>
-            <Route path="/nino/*" element={<DashboardNino />} />
-          </Route>
+            {/* Niño: accede siempre vía sesión activa del tutor (spec §2) */}
+            <Route element={<PrivateRoute allowedRoles={['tutor']} />}>
+              <Route path="/nino/*" element={<DashboardNino />} />
+            </Route>
 
-          {/* Rutas protegidas — Suscripción */}
-          <Route element={<PrivateRoute allowedRoles={['tutor', 'profesional', 'admin']} />}>
-            <Route path="/subscription/status" element={<SubscriptionStatus />} />
-            <Route path="/subscription/checkout" element={<Checkout />} />
-            <Route path="/subscription/success" element={<PaymentSuccess />} />
-          </Route>
-        </Routes>
+            {/* Rutas protegidas — Suscripción */}
+            <Route element={<PrivateRoute allowedRoles={['tutor', 'profesional', 'admin']} />}>
+              <Route path="/subscription/status" element={<SubscriptionStatus />} />
+              <Route path="/subscription/checkout" element={<Checkout />} />
+              <Route path="/subscription/success" element={<PaymentSuccess />} />
+            </Route>
+          </Routes>
+        </ChildProvider>
       </AuthProvider>
     </BrowserRouter>
   );
