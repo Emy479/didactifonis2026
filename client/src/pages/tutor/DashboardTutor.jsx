@@ -6,6 +6,8 @@ import TrialBanner from '../../components/TrialBanner';
 import MiHijoa from './MiHijoa';
 import ActividadesTutor from './ActividadesTutor';
 import TareasTutor from './TareasTutor';
+import ProgresoTutor from './ProgresoTutor';
+import LogrosTutor from './LogrosTutor';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -89,6 +91,7 @@ export default function DashboardTutor() {
     { id: 'actividades', label: 'Actividades', icon: '🎯' },
     { id: 'tareas', label: 'Tareas', icon: '✓' },
     { id: 'progreso', label: 'Progreso', icon: '📊' },
+    { id: 'logros', label: 'Logros', icon: '🏆' },
     { id: 'mensajes', label: 'Mensajes', icon: '💬' },
     { id: 'calendario', label: 'Calendario', icon: '📅' },
     { id: 'recursos', label: 'Recursos', icon: '📚' },
@@ -155,6 +158,10 @@ export default function DashboardTutor() {
             <ActividadesTutor selectedChildId={activeChild?._id || null} />
           ) : currentView === 'tareas' ? (
             <TareasTutor selectedChildId={activeChild?._id || null} />
+          ) : currentView === 'progreso' ? (
+            <ProgresoTutor />
+          ) : currentView === 'logros' ? (
+            <LogrosTutor />
           ) : currentView === 'mis-hijos' || currentView === 'inicio' ? (
             <div className="h-full overflow-y-auto p-8">
               <h1 className="font-heading text-3xl font-semibold text-text-strong mb-6">
