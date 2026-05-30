@@ -36,6 +36,10 @@
 - Fase 2B (cuando Transbank esté afiliado): adaptador Transbank + checkout.
 - Fase 2C (cuando se defina el emisor DTE): módulo de facturación electrónica.
 
+> **Parte C — BLOQUEADA.** El emisor DTE no está definido. No construir nada de
+> facturación electrónica hasta elegir entre Bsale, Defontana, DTE-Chile u otro.
+> Esta parte queda en espera hasta que se tome la decisión del emisor.
+
 ---
 
 ## D3 — Mecanismo de vinculación tutor ↔ profesional

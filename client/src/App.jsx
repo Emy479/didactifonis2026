@@ -8,6 +8,11 @@ import DashboardPro from './pages/pro/DashboardPro';
 import DashboardTutor from './pages/tutor/DashboardTutor';
 import DashboardNino from './pages/nino/DashboardNino';
 import DashboardAdmin from './pages/admin/DashboardAdmin';
+import SubscriptionStatus from './pages/subscription/SubscriptionStatus';
+import SubscriptionRequired from './pages/subscription/SubscriptionRequired';
+import Checkout from './pages/subscription/Checkout';
+import MockConfirm from './pages/subscription/MockConfirm';
+import PaymentSuccess from './pages/subscription/PaymentSuccess';
 
 export default function App() {
   return (
@@ -18,6 +23,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/subscription/required" element={<SubscriptionRequired />} />
+          <Route path="/subscription/mock-confirm" element={<MockConfirm />} />
 
           {/* Rutas protegidas — Profesional */}
           <Route element={<PrivateRoute allowedRoles={['profesional']} />}>
@@ -37,6 +44,13 @@ export default function App() {
           {/* Niño: accede siempre vía sesión activa del tutor (spec §2) */}
           <Route element={<PrivateRoute allowedRoles={['tutor']} />}>
             <Route path="/nino/*" element={<DashboardNino />} />
+          </Route>
+
+          {/* Rutas protegidas — Suscripción */}
+          <Route element={<PrivateRoute allowedRoles={['tutor', 'profesional', 'admin']} />}>
+            <Route path="/subscription/status" element={<SubscriptionStatus />} />
+            <Route path="/subscription/checkout" element={<Checkout />} />
+            <Route path="/subscription/success" element={<PaymentSuccess />} />
           </Route>
         </Routes>
       </AuthProvider>
