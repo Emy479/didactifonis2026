@@ -3,47 +3,109 @@ import { Link } from 'react-router-dom'
 // --- Sección 1: Hero ---
 function HeroSection() {
   return (
-    <section className="bg-gradient-main min-h-[90vh] flex items-center">
-      <div className="max-w-6xl mx-auto px-4 py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        {/* Texto */}
-        <div>
-          <h1 className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight mb-6">
-            Terapia fonoaudiológica que los niños{' '}
-            <span className="italic">quieren hacer</span>
-          </h1>
-          <p className="font-body text-lg text-white/90 mb-8 leading-relaxed max-w-lg">
-            Conectamos a fonoaudiólogos, padres y niños en una plataforma segura,
-            gamificada y fácil de usar.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link
-              to="/comenzar"
-              className="font-heading font-semibold bg-white text-primary px-7 py-3.5 rounded-button hover:bg-surface transition-colors text-base"
-            >
-              Comenzar gratis
-            </Link>
-            <a
-              href="#como-funciona"
-              className="font-heading font-semibold border-2 border-white text-white px-7 py-3.5 rounded-button hover:bg-white/10 transition-colors text-base"
-            >
-              Ver cómo funciona
-            </a>
-          </div>
-        </div>
+    <section className="bg-gradient-creative min-h-[90vh] flex items-center overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 py-16 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
+          {/* Columna izquierda — 60% */}
+          <div className="lg:col-span-3">
+            {/* Badge */}
+            <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
+              <p className="font-body text-sm text-white leading-snug max-w-sm">
+                Didactifonis conecta a ninos, padres y fonoaudiologos con juegos educativos personalizados y seguimiento en tiempo real.
+              </p>
+            </div>
 
-        {/* Ilustración */}
-        <div className="flex justify-center lg:justify-end">
-          <div className="relative">
-            <div className="absolute inset-0 bg-white/10 rounded-2xl blur-xl scale-110" />
-            <img
-              src="/assets/personajes/Nino.png"
-              alt="Niño jugando con actividades fonoaudiológicas"
-              className="relative w-72 sm:w-80 lg:w-96 object-contain drop-shadow-xl"
-              onError={(e) => {
-                e.target.onerror = null
-                e.target.src = '/assets/personajes/Nina.jpg'
-              }}
-            />
+            {/* Headline */}
+            <h1 className="font-heading font-bold text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-4">
+              Aprende{' '}
+              <span className="text-optimism">jugando</span>
+            </h1>
+
+            {/* Subheadline */}
+            <p className="font-body text-lg text-white/80 mb-8 max-w-lg leading-relaxed">
+              La plataforma que conecta fonoaudiologos, padres y ninos a traves de actividades divertidas y personalizadas.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap gap-4 mb-10">
+              <Link
+                to="/comenzar"
+                className="font-heading font-semibold bg-white text-accent px-7 py-3.5 rounded-button hover:bg-surface transition-colors text-base shadow-sm"
+              >
+                Comenzar ahora
+              </Link>
+              <a
+                href="#como-funciona"
+                className="font-heading font-semibold border-2 border-white text-white px-7 py-3.5 rounded-button hover:bg-white/10 transition-colors text-base"
+              >
+                Saber mas
+              </a>
+            </div>
+
+            {/* Feature icons row */}
+            <div className="flex flex-wrap gap-6">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
+                  </svg>
+                </div>
+                <span className="font-body text-sm text-white font-semibold">Aprende jugando</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                  </svg>
+                </div>
+                <span className="font-body text-sm text-white font-semibold">Seguimiento en tiempo real</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <span className="font-body text-sm text-white font-semibold">Personalizado</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Columna derecha — 40% */}
+          <div className="lg:col-span-2 flex justify-center lg:justify-end relative">
+            <div className="relative">
+              <img
+                src="/assets/personajes/Nino.png"
+                alt="Nino jugando con actividades fonoaudiologicas"
+                className="w-64 sm:w-72 lg:w-80 object-contain drop-shadow-xl relative z-10"
+              />
+
+              {/* Tarjeta flotante — progreso 30% */}
+              <div className="absolute top-8 -left-6 bg-white rounded-2xl shadow-md px-4 py-3 z-20 flex items-center gap-3 min-w-max">
+                <div className="w-10 h-10 rounded-xl bg-gradient-energy flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-heading font-bold text-lg text-text-strong leading-none">30%</p>
+                  <p className="font-body text-xs text-text-soft">Progreso hoy</p>
+                </div>
+              </div>
+
+              {/* Tarjeta flotante — estrellas */}
+              <div className="absolute bottom-12 -right-4 bg-white rounded-2xl shadow-md px-4 py-3 z-20 min-w-max">
+                <div className="flex items-center gap-1 mb-1">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <svg key={i} xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-optimism" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="font-body text-xs text-text-soft">Actividad completada</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -55,36 +117,42 @@ function HeroSection() {
 const valuePropCards = [
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
       </svg>
     ),
-    title: 'Para el profesional',
-    description: 'Gestiona terapias, asigna actividades y haz seguimiento del progreso de cada paciente desde un panel claro y ordenado.',
-    accent: 'text-accent',
-    bg: 'bg-accent/10',
-  },
-  {
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
-      </svg>
-    ),
-    title: 'Para el tutor',
-    description: 'Acompaña a tu hijo o hija con actividades pensadas para su terapia. Mira su progreso y celebra cada avance.',
-    accent: 'text-primary',
-    bg: 'bg-primary/10',
-  },
-  {
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-      </svg>
-    ),
-    title: 'Para el niño',
-    description: 'Juega, aprende y celebra cada logro en tu propio espacio. Las actividades son divertidas y están hechas para ti.',
+    title: 'Aprende jugando',
+    subtitle: 'Para el nino',
+    description: 'Actividades divertidas y personalizadas que hacen que cada sesion sea una aventura. Los ninos aprenden sin darse cuenta.',
     accent: 'text-creative',
     bg: 'bg-creative/10',
+    border: 'border-creative/20',
+  },
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+      </svg>
+    ),
+    title: 'Seguimiento en Tiempo Real',
+    subtitle: 'Para el profesional',
+    description: 'Panel de gestion claro y ordenado. Asigna actividades, monitorea el progreso y ajusta la terapia segun los resultados.',
+    accent: 'text-accent',
+    bg: 'bg-accent/10',
+    border: 'border-accent/20',
+  },
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+      </svg>
+    ),
+    title: 'Consulta Segura',
+    subtitle: 'Para el tutor',
+    description: 'Accede a las actividades de tu hijo/a, sigue su progreso y comunicate con el profesional en un entorno completamente seguro.',
+    accent: 'text-primary',
+    bg: 'bg-primary/10',
+    border: 'border-primary/20',
   },
 ]
 
@@ -94,10 +162,10 @@ function ValuePropSection() {
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-14">
           <h2 className="font-heading font-bold text-3xl sm:text-4xl text-text-strong mb-4">
-            ¿Por qué Didactifonis?
+            Una plataforma para todos
           </h2>
           <p className="font-body text-text-soft text-lg max-w-xl mx-auto">
-            Una sola plataforma diseñada para cada quien: el profesional, la familia y el niño.
+            Diseniada para que cada quien encuentre exactamente lo que necesita.
           </p>
         </div>
 
@@ -105,12 +173,15 @@ function ValuePropSection() {
           {valuePropCards.map((card) => (
             <div
               key={card.title}
-              className="bg-surface rounded-card p-8 shadow-sm hover:shadow-md transition-shadow"
+              className={`bg-surface rounded-card p-8 shadow-sm hover:shadow-md transition-shadow border ${card.border}`}
             >
-              <div className={`${card.bg} ${card.accent} w-14 h-14 rounded-xl flex items-center justify-center mb-5`}>
+              <div className={`${card.bg} ${card.accent} w-14 h-14 rounded-2xl flex items-center justify-center mb-5`}>
                 {card.icon}
               </div>
-              <h3 className="font-heading font-semibold text-xl text-text-strong mb-3">
+              <p className={`font-body text-xs font-semibold uppercase tracking-wide ${card.accent} mb-1`}>
+                {card.subtitle}
+              </p>
+              <h3 className="font-heading font-bold text-xl text-text-strong mb-3">
                 {card.title}
               </h3>
               <p className="font-body text-text-soft leading-relaxed">
@@ -127,19 +198,34 @@ function ValuePropSection() {
 // --- Sección 3: Cómo funciona ---
 const steps = [
   {
-    number: '01',
-    title: 'El profesional crea la terapia',
-    description: 'El fonoaudiólogo selecciona actividades y las asigna al niño según sus objetivos terapéuticos.',
+    number: '1',
+    title: 'Aprende jugando',
+    description: 'El fonoaudiologo crea actividades y terapias personalizadas para cada paciente segun sus objetivos.',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+      </svg>
+    ),
   },
   {
-    number: '02',
-    title: 'El tutor la acompaña en casa',
-    description: 'Los padres tienen acceso a las actividades asignadas y pueden guiar a su hijo/a durante la práctica.',
+    number: '2',
+    title: 'Tablet / Juego',
+    description: 'El nino juega desde casa con actividades divertidas asignadas por su fonoaudiologo o tutor.',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z" />
+      </svg>
+    ),
   },
   {
-    number: '03',
-    title: 'El niño juega y progresa',
-    description: 'El niño completa actividades en un entorno divertido y sus resultados se registran automáticamente.',
+    number: '3',
+    title: 'Seguimiento',
+    description: 'El profesional y el tutor monitorean el progreso en tiempo real y celebran cada logro del nino.',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+      </svg>
+    ),
   },
 ]
 
@@ -149,28 +235,28 @@ function HowItWorksSection() {
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-14">
           <h2 className="font-heading font-bold text-3xl sm:text-4xl text-text-strong mb-4">
-            Simple desde el primer día
+            Como funciona?
           </h2>
           <p className="font-body text-text-soft text-lg max-w-xl mx-auto">
-            Tres pasos que conectan a toda la red de apoyo del niño.
+            Tres pasos simples que conectan a toda la red de apoyo del nino.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {steps.map((step, index) => (
-            <div key={step.number} className="relative flex flex-col items-center text-center md:items-start md:text-left">
-              {/* Conector horizontal entre steps (solo desktop) */}
-              {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-7 left-[calc(50%+2rem)] right-[calc(-50%+2rem)] h-0.5 bg-primary/20" />
-              )}
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+          {/* Linea horizontal punteada entre pasos — solo desktop */}
+          <div className="hidden md:block absolute top-10 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-0.5 border-t-2 border-dashed border-accent/30" />
 
-              <div className="w-14 h-14 rounded-full bg-gradient-main flex items-center justify-center mb-5 flex-shrink-0 shadow-sm">
-                <span className="font-heading font-bold text-white text-lg">{step.number}</span>
+          {steps.map((step, index) => (
+            <div key={step.number} className="flex flex-col items-center text-center relative">
+              {/* Circulo numero */}
+              <div className="w-20 h-20 rounded-full bg-gradient-main flex flex-col items-center justify-center mb-5 shadow-sm relative z-10">
+                {step.icon}
+                <span className="font-heading font-bold text-white text-xs leading-none mt-0.5">{step.number}</span>
               </div>
-              <h3 className="font-heading font-semibold text-lg text-text-strong mb-2">
+              <h3 className="font-heading font-bold text-lg text-text-strong mb-2">
                 {step.title}
               </h3>
-              <p className="font-body text-text-soft leading-relaxed">
+              <p className="font-body text-text-soft leading-relaxed text-sm max-w-xs">
                 {step.description}
               </p>
             </div>
@@ -181,81 +267,58 @@ function HowItWorksSection() {
   )
 }
 
-// --- Sección 4: Para quién es ---
-const proBenefits = [
-  'Panel de gestión claro y sin ruido visual',
-  'Asignación libre de actividades por paciente',
-  'Seguimiento de progreso en tiempo real',
-  'Fichas de sesión y notas clínicas (Capa 2)',
-  'Sincronización automática con los tutores',
-  'Historial de resultados por niño',
+// --- Sección 4: Planes ---
+const tutorPlanBenefits = [
+  'Acceso a actividades de tu hijo/a',
+  'Seguimiento de progreso',
+  'Comunicacion con el profesional',
+  'Soporte prioritario',
 ]
 
-const tutorBenefits = [
-  'Acceso a actividades asignadas por el profesional',
-  'Vista de progreso de tu hijo/a',
-  'Espacio seguro para menores de edad',
-  'Comunicación con el fonoaudiólogo de seguimiento',
-  'Notificaciones de nuevas tareas asignadas',
-  'Sin configuraciones complejas — fácil desde el día uno',
+const proPlanBenefits = [
+  'Gestion de multiples pacientes',
+  'Creacion de terapias personalizadas',
+  'Reportes y estadisticas',
+  'Mensajeria con tutores',
+  'Soporte prioritario',
 ]
 
-function ForWhomSection() {
+function PlansSection() {
   return (
-    <section id="para-quien" className="py-20 bg-white">
+    <section id="planes" className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-14">
           <h2 className="font-heading font-bold text-3xl sm:text-4xl text-text-strong mb-4">
-            Diseñado para cada rol
+            Elige el plan que mas se adapta a ti
           </h2>
           <p className="font-body text-text-soft text-lg max-w-xl mx-auto">
-            Cada usuario tiene su propio espacio, adaptado a sus necesidades.
+            Planes pensados para cada tipo de usuario, con prueba gratuita.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Profesionales */}
-          <div className="bg-surface rounded-card p-8 border border-accent/10">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
-                </svg>
-              </div>
-              <h3 className="font-heading font-bold text-xl text-text-strong">
-                Fonoaudiólogos y terapeutas
-              </h3>
-            </div>
-            <ul className="space-y-3">
-              {proBenefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-2.5 font-body text-text-soft">
-                  <span className="text-accent mt-0.5 flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                  </span>
-                  {benefit}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Tutores */}
-          <div className="bg-surface rounded-card p-8 border border-primary/10">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* Plan Padres / Tutores */}
+          <div className="bg-surface rounded-card p-8 shadow-sm border border-primary/20 hover:shadow-md transition-shadow">
+            <div className="mb-6">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                 </svg>
               </div>
-              <h3 className="font-heading font-bold text-xl text-text-strong">
-                Padres y tutores
+              <h3 className="font-heading font-bold text-2xl text-text-strong mb-1">
+                Padres / Tutores
               </h3>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="font-heading font-bold text-3xl text-text-strong">$9.990</span>
+                <span className="font-body text-text-soft">/mes</span>
+              </div>
+              <p className="font-body text-xs text-text-soft">Facturado mensualmente</p>
             </div>
-            <ul className="space-y-3">
-              {tutorBenefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-2.5 font-body text-text-soft">
-                  <span className="text-primary mt-0.5 flex-shrink-0">
+
+            <ul className="space-y-3 mb-8">
+              {tutorPlanBenefits.map((benefit) => (
+                <li key={benefit} className="flex items-center gap-2.5 font-body text-text-soft text-sm">
+                  <span className="text-primary flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
@@ -264,6 +327,59 @@ function ForWhomSection() {
                 </li>
               ))}
             </ul>
+
+            <Link
+              to="/comenzar"
+              className="font-heading font-semibold w-full block text-center bg-primary text-white px-6 py-3 rounded-button hover:opacity-90 transition-opacity"
+            >
+              Comenzar prueba gratis
+            </Link>
+          </div>
+
+          {/* Plan Profesional Independiente */}
+          <div className="bg-surface rounded-card p-8 shadow-md border-2 border-accent hover:shadow-lg transition-shadow relative">
+            {/* Badge popular */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span className="bg-gradient-main text-white font-heading font-semibold text-xs px-4 py-1.5 rounded-full whitespace-nowrap shadow-sm">
+                Mas popular
+              </span>
+            </div>
+
+            <div className="mb-6">
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+                </svg>
+              </div>
+              <h3 className="font-heading font-bold text-2xl text-text-strong mb-1">
+                Profesional Independiente
+              </h3>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="font-heading font-bold text-3xl text-text-strong">$24.990</span>
+                <span className="font-body text-text-soft">/mes</span>
+              </div>
+              <p className="font-body text-xs text-text-soft">Facturado mensualmente</p>
+            </div>
+
+            <ul className="space-y-3 mb-8">
+              {proPlanBenefits.map((benefit) => (
+                <li key={benefit} className="flex items-center gap-2.5 font-body text-text-soft text-sm">
+                  <span className="text-accent flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </span>
+                  {benefit}
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              to="/comenzar"
+              className="font-heading font-semibold w-full block text-center bg-gradient-main text-white px-6 py-3 rounded-button hover:opacity-90 transition-opacity"
+            >
+              Comenzar prueba gratis
+            </Link>
           </div>
         </div>
       </div>
@@ -271,104 +387,37 @@ function ForWhomSection() {
   )
 }
 
-// --- Sección 5: Recursos de muestra ---
-const sampleActivities = [
-  {
-    id: 1,
-    title: 'Sonidos del bosque',
-    type: 'Discriminación auditiva',
-    difficulty: 'Inicial',
-    difficultyColor: 'bg-optimism/20 text-text-strong',
-    placeholderBg: 'bg-gradient-energy',
-    icon: '🌲',
-  },
-  {
-    id: 2,
-    title: 'El tren de las sílabas',
-    type: 'Conciencia fonológica',
-    difficulty: 'Intermedio',
-    difficultyColor: 'bg-primary/10 text-primary',
-    placeholderBg: 'bg-gradient-main',
-    icon: '🚂',
-  },
-  {
-    id: 3,
-    title: 'Rima y recuerda',
-    type: 'Memoria fonológica',
-    difficulty: 'Avanzado',
-    difficultyColor: 'bg-creative/10 text-creative',
-    placeholderBg: 'bg-gradient-creative',
-    icon: '🎵',
-  },
-]
-
-function ResourcesSampleSection() {
-  return (
-    <section id="recursos" className="py-20 bg-surface">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="text-center mb-14">
-          <h2 className="font-heading font-bold text-3xl sm:text-4xl text-text-strong mb-4">
-            Explora actividades de muestra
-          </h2>
-          <p className="font-body text-text-soft text-lg max-w-xl mx-auto">
-            Así lucen las actividades que los niños disfrutan en Didactifonis.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-          {sampleActivities.map((activity) => (
-            <div key={activity.id} className="bg-white rounded-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              {/* Imagen placeholder */}
-              <div className={`${activity.placeholderBg} h-40 flex items-center justify-center`}>
-                <span className="text-5xl" role="img" aria-label={activity.title}>
-                  {activity.icon}
-                </span>
-              </div>
-              <div className="p-5">
-                <h3 className="font-heading font-semibold text-text-strong mb-1">
-                  {activity.title}
-                </h3>
-                <p className="font-body text-sm text-text-soft mb-3">
-                  {activity.type}
-                </p>
-                <span className={`${activity.difficultyColor} text-xs font-body font-semibold px-3 py-1 rounded-full`}>
-                  {activity.difficulty}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center">
-          <Link
-            to="/recursos"
-            className="font-heading font-semibold bg-white border-2 border-primary text-primary px-7 py-3 rounded-button hover:bg-primary hover:text-white transition-colors inline-block"
-          >
-            Ver todos los recursos
-          </Link>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// --- Sección 6: CTA final ---
+// --- Sección 5: CTA final ---
 function FinalCtaSection() {
   return (
-    <section className="bg-gradient-creative py-24">
-      <div className="max-w-6xl mx-auto px-4 text-center">
-        <h2 className="font-heading font-bold text-3xl sm:text-4xl text-white mb-4">
-          Empieza hoy, sin compromiso
-        </h2>
-        <p className="font-body text-lg text-white/90 mb-10 max-w-md mx-auto">
-          30 días de prueba gratuita. Sin tarjeta de crédito.
-        </p>
-        <Link
-          to="/comenzar"
-          className="font-heading font-semibold bg-white text-creative px-8 py-4 rounded-button hover:bg-surface transition-colors text-lg inline-block shadow-sm"
-        >
-          Crear cuenta gratis
-        </Link>
+    <section className="bg-gradient-creative py-20 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          {/* Columna izquierda */}
+          <div>
+            <h2 className="font-heading font-bold text-4xl sm:text-5xl text-white leading-tight mb-4">
+              Juntos hacemos que cada palabra cuente
+            </h2>
+            <p className="font-body text-lg text-white/80 mb-8 max-w-md leading-relaxed">
+              Acompana el desarrollo del lenguaje de tu hijo/a con herramientas pensadas para aprender jugando.
+            </p>
+            <Link
+              to="/comenzar"
+              className="font-heading font-semibold bg-white text-accent px-8 py-4 rounded-button hover:bg-surface transition-colors text-base inline-block shadow-sm"
+            >
+              Comenzar ahora
+            </Link>
+          </div>
+
+          {/* Columna derecha — personaje */}
+          <div className="flex justify-center lg:justify-end relative">
+            <img
+              src="/assets/personajes/Nina.jpg"
+              alt="Nina aprendiendo con Didactifonis"
+              className="w-56 sm:w-64 lg:w-72 object-contain drop-shadow-xl rounded-2xl"
+            />
+          </div>
+        </div>
       </div>
     </section>
   )
@@ -381,8 +430,7 @@ export default function HomePage() {
       <HeroSection />
       <ValuePropSection />
       <HowItWorksSection />
-      <ForWhomSection />
-      <ResourcesSampleSection />
+      <PlansSection />
       <FinalCtaSection />
     </main>
   )
