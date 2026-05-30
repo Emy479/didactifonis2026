@@ -5,16 +5,19 @@ import TrialBanner from '../../components/TrialBanner';
 import PacientesPro from './PacientesPro';
 import ActividadesPro from './ActividadesPro';
 import TerapiasPro from './TerapiasPro';
+import InvitacionesPro from './InvitacionesPro';
+import MensajesPro from './MensajesPro';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const NAV_ITEMS = [
   { id: 'inicio',         label: 'Inicio',        icon: '▦' },
   { id: 'pacientes',      label: 'Pacientes',      icon: '👥' },
+  { id: 'invitaciones',   label: 'Invitaciones',   icon: '◈' },
   { id: 'terapias',       label: 'Terapias',       icon: '🧩' },
   { id: 'actividades',    label: 'Actividades',    icon: '🎮' },
   { id: 'reportes',       label: 'Reportes',       icon: '📊', soon: true },
-  { id: 'mensajes',       label: 'Mensajes',       icon: '💬', soon: true },
+  { id: 'mensajes',       label: 'Mensajes',       icon: '💬' },
   { id: 'calendario',     label: 'Calendario',     icon: '📅', soon: true },
   { id: 'recursos',       label: 'Recursos',       icon: '📚', soon: true },
   { id: 'configuracion',  label: 'Configuración',  icon: '⚙️', soon: true },
@@ -50,10 +53,12 @@ export default function DashboardPro() {
 
   const renderView = () => {
     switch (currentView) {
-      case 'pacientes':   return <PacientesPro />;
-      case 'actividades': return <ActividadesPro />;
-      case 'terapias':    return <TerapiasPro />;
-      default:            return <ProInicio user={user} setCurrentView={setCurrentView} />;
+      case 'pacientes':    return <PacientesPro />;
+      case 'invitaciones': return <InvitacionesPro />;
+      case 'actividades':  return <ActividadesPro />;
+      case 'terapias':     return <TerapiasPro />;
+      case 'mensajes':     return <MensajesPro />;
+      default:             return <ProInicio user={user} setCurrentView={setCurrentView} />;
     }
   };
 
@@ -213,7 +218,7 @@ function ProInicio({ user, setCurrentView }) {
       <div className="bg-accent/5 border border-accent/20 rounded-2xl p-4">
         <p className="font-body text-sm text-text-strong font-medium mb-1">Funciones próximas</p>
         <p className="font-body text-sm text-text-soft">
-          Calendario de citas, mensajería con tutores y reportes de progreso están en desarrollo.
+          Calendario de citas y reportes de progreso están en desarrollo.
         </p>
       </div>
     </div>

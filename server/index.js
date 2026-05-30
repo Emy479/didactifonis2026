@@ -17,6 +17,9 @@ const assignmentsRouter = require('./routes/assignments');
 const adminRouter = require('./routes/admin');
 const professionalRouter = require('./routes/professional');
 const progressRouter = require('./routes/progress');
+const linkRouter = require('./routes/link');
+const directoryRouter = require('./routes/directory');
+const messagesRouter = require('./routes/messages');
 
 const app = express();
 
@@ -51,6 +54,9 @@ app.use('/api/assignments', assignmentsRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/professional', professionalRouter);
 app.use('/api/progress', progressRouter);
+app.use('/api/link', linkRouter);
+app.use('/api/professionals', directoryRouter);
+app.use('/api/messages', messagesRouter);
 
 // MongoDB connection — non-fatal: app stays up even if DB is unavailable
 const mongoUri = process.env.MONGODB_URI;

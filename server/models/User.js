@@ -60,6 +60,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Perfil profesional: solo relevante para el rol 'profesional'.
+    // Usado en el directorio público (GET /api/professionals/directory).
+    professionalProfile: {
+      specialty: { type: String, default: null },
+      city: { type: String, default: null },
+    },
   },
   {
     timestamps: true,

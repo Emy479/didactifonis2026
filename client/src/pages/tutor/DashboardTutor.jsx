@@ -8,6 +8,8 @@ import ActividadesTutor from './ActividadesTutor';
 import TareasTutor from './TareasTutor';
 import ProgresoTutor from './ProgresoTutor';
 import LogrosTutor from './LogrosTutor';
+import VincularProfesional from './VincularProfesional';
+import MensajesTutor from './MensajesTutor';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -86,16 +88,17 @@ export default function DashboardTutor() {
   };
 
   const navItems = [
-    { id: 'inicio', label: 'Inicio', icon: '🏠' },
-    { id: 'mis-hijos', label: 'Mis hijos', icon: '👨‍👩‍👧‍👦' },
-    { id: 'actividades', label: 'Actividades', icon: '🎯' },
-    { id: 'tareas', label: 'Tareas', icon: '✓' },
-    { id: 'progreso', label: 'Progreso', icon: '📊' },
-    { id: 'logros', label: 'Logros', icon: '🏆' },
-    { id: 'mensajes', label: 'Mensajes', icon: '💬' },
-    { id: 'calendario', label: 'Calendario', icon: '📅' },
-    { id: 'recursos', label: 'Recursos', icon: '📚' },
-    { id: 'configuracion', label: 'Configuración', icon: '⚙️' },
+    { id: 'inicio',     label: 'Inicio',                icon: '🏠' },
+    { id: 'mis-hijos',  label: 'Mis hijos',             icon: '👨‍👩‍👧‍👦' },
+    { id: 'vincular',   label: 'Vincular profesional',  icon: '◈' },
+    { id: 'actividades',label: 'Actividades',            icon: '🎯' },
+    { id: 'tareas',     label: 'Tareas',                icon: '✓' },
+    { id: 'progreso',   label: 'Progreso',              icon: '📊' },
+    { id: 'logros',     label: 'Logros',                icon: '🏆' },
+    { id: 'mensajes',   label: 'Mensajes',              icon: '💬' },
+    { id: 'calendario', label: 'Calendario',            icon: '📅' },
+    { id: 'recursos',   label: 'Recursos',              icon: '📚' },
+    { id: 'configuracion', label: 'Configuracion',      icon: '⚙️' },
   ];
 
   return (
@@ -162,6 +165,10 @@ export default function DashboardTutor() {
             <ProgresoTutor />
           ) : currentView === 'logros' ? (
             <LogrosTutor />
+          ) : currentView === 'vincular' ? (
+            <VincularProfesional />
+          ) : currentView === 'mensajes' ? (
+            <MensajesTutor />
           ) : currentView === 'mis-hijos' || currentView === 'inicio' ? (
             <div className="h-full overflow-y-auto p-8">
               <h1 className="font-heading text-3xl font-semibold text-text-strong mb-6">
