@@ -69,11 +69,22 @@ Administrador. Ningún agente debe construirlo como plan de suscripción.
   imposible de activar en producción. La cuenta demo **nunca** debe contener datos
   reales de menores — solo datos sintéticos.
 
-### 3.4 Acceso del niño a la cuenta del tutor 🔴 PENDIENTE
-El niño entra "vía la cuenta del tutor", pero no está definido el mecanismo concreto:
-¿una sub-sesión / modo niño dentro de la sesión del tutor?, ¿un PIN?, ¿selección de
-perfil de niño tras el login del tutor? **El arquitecto debe cerrar esto**, porque
-afecta UX y el tratamiento de datos del menor.
+### 3.4 Acceso del niño a la cuenta del tutor — RESUELTO
+
+**Mecanismo:** cambio de contexto visual dentro de la sesión del tutor. Sin PIN ni sub-sesión independiente para el niño.
+
+**Flujo:**
+1. El tutor inicia sesión con sus propias credenciales (login estándar).
+2. Dentro de su sesión, el tutor **asigna la actividad** al niño.
+3. El tutor **selecciona el perfil del niño** desde su dashboard.
+4. La UI cambia al **"modo niño"** (flujo lúdico, gamificado), reemplazando la vista del tutor.
+5. El niño solo ve y ejecuta la actividad ya asignada. No navega, no elige, no configura.
+6. Al terminar, la pantalla puede volver al modo tutor.
+
+**Implicaciones de arquitectura:**
+- La sesión JWT sigue siendo la del tutor. El ID del niño activo se pasa como estado de la aplicación.
+- Los endpoints de ejecución de actividad reciben el ID del niño activo y validan en backend que ese niño pertenezca al tutor autenticado.
+- El frontend implementa un "modo niño" que es un contexto visual distinto, no una sesión técnica separada.
 
 ---
 
@@ -83,13 +94,8 @@ afecta UX y el tratamiento de datos del menor.
 - La **landing page** ofrece una sección pública de **Recursos** (material de muestra,
   no la app completa) como vía de captación y confianza previa a la suscripción. Esta
   zona es contenido de marketing **sin autenticación**, separada del producto.
-- 🔴 **PENDIENTE — Pasarela de pago.** El proveedor aún está en conversación. Debe ser
-  una pasarela chilena compatible con la contabilidad ante el **SII** (boleta/factura
-  electrónica). Candidatos del mercado a evaluar (decisión del equipo, no del agente):
-  Transbank/Webpay, Flow, Khipu u otra.
-  - **Directriz de arquitectura:** la integración de pago se construye como un **módulo
-    aislado tras una interfaz genérica**, de modo que enchufar el proveedor definitivo
-    no obligue a reescribir lógica de negocio.
+- **RESUELTO — Pasarela de pago:** proveedor priorizado **Transbank / Webpay Plus**. Afiliación pendiente de iniciar. Emisor DTE (boleta/factura electrónica SII) sin definir todavía — bloqueante solo para el módulo de facturación, no para el resto del MVP.
+  - **Directriz de arquitectura (confirmada):** la integración de pago se construye como un **módulo aislado tras una interfaz genérica** (adaptador), de modo que cambiar de proveedor no obligue a reescribir lógica de negocio. Igual aplica al módulo de facturación electrónica.
 
 ---
 
@@ -119,13 +125,17 @@ La ficha/perfil del niño puede ser creada por el **tutor** o por el **profesion
 - Este es el punto **más sensible** del proyecto (datos de salud de un menor). El agente
   `didactifonis-security` debe auditarlo como crítico.
 
-### 5.3 Contacto con un profesional (botón "Contactar al profesional")
-El diseño del panel del tutor incluye "Contactar al profesional". Opciones de
-implementación a definir 🔴 **PENDIENTE** (el arquitecto elige con el equipo):
-- (a) Formulario que lista profesionales activos para agendar una sesión.
-- (b) Notificación global a profesionales indicando que se requiere uno; el profesional
-  interesado responde/contacta.
-- Posiblemente ambas. Decisión de alcance para el MVP.
+### 5.3 Contacto con un profesional — RESUELTO
+
+Dos vías complementarias con prioridades distintas:
+
+**Vía principal (tutor ya conoce a su profesional):** el profesional genera un **código o link de invitación** desde su panel. El tutor lo ingresa en su panel para establecer el vínculo. El backend genera un token con caducidad, lo valida al ingresarlo y registra el vínculo con consentimiento.
+
+**Vía secundaria (tutor aún no tiene profesional):** directorio de profesionales activos con solicitud directa. El tutor puede buscar y contactar desde la plataforma.
+
+**Postergado para versión posterior:** demanda abierta (notificación global a todos los profesionales). No entra en el MVP.
+
+**Implicación de arquitectura:** ambas vías producen la misma entidad de vínculo `profesional ↔ tutor/niño`. Una vez establecido el vínculo por cualquiera de las dos vías, se activa la mensajería (sección 10) y el acceso a la ficha según el modelo mixto de 5.2.
 
 ### 5.4 Profesional externo (sin cuenta)
 Si el profesional del niño **no usa la plataforma**, el tutor puede **exportar un PDF**

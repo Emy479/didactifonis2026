@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gradient-main: linear-gradient(135deg, #18C7D1, #4C8DFF);
+  --gradient-creative: linear-gradient(135deg, #4C8DFF, #9A6BFF);
+  --gradient-energy: linear-gradient(135deg, #FF8A3D, #FFD24A);
+}
+
+body {
+  font-family: "Nunito Sans", sans-serif;
+  background-color: #F5F7FA;
+  color: #1B2A41;
+}

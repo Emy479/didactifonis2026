@@ -1,0 +1,32 @@
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Variables de entorno (NUNCA commitear)
+.env
+**/.env
+!**/.env.example
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Coverage
+coverage/
+
+# Claude Code internals
+.claude/
