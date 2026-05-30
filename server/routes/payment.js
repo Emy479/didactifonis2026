@@ -5,17 +5,17 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-router.get('/plans', protect, async (req, res) => {
+router.get('/plans', protect, async (req, res, next) => {
   try {
     const provider = getProvider();
     const plans = await provider.getPlans();
     return res.json(plans);
-  } catch {
-    return res.status(500).json({ message: 'Error al obtener planes' });
+  } catch (err) {
+    return next(err);
   }
 });
 
-router.post('/checkout', protect, async (req, res) => {
+router.post('/checkout', protect, async (req, res, next) => {
   const { plan } = req.body;
   if (!plan) {
     return res.status(400).json({ message: 'Plan requerido' });
@@ -29,12 +29,12 @@ router.post('/checkout', protect, async (req, res) => {
     }
     const result = await provider.createSession(req.user._id, plan, selectedPlan.price);
     return res.json(result);
-  } catch {
-    return res.status(500).json({ message: 'Error al iniciar checkout' });
+  } catch (err) {
+    return next(err);
   }
 });
 
-router.post('/confirm', protect, async (req, res) => {
+router.post('/confirm', protect, async (req, res, next) => {
   const { token, plan } = req.body;
   if (!token) {
     return res.status(400).json({ message: 'Token requerido' });
@@ -75,8 +75,8 @@ router.post('/confirm', protect, async (req, res) => {
         planExpiresAt: updatedUser.subscription.planExpiresAt,
       },
     });
-  } catch {
-    return res.status(500).json({ message: 'Error al confirmar pago' });
+  } catch (err) {
+    return next(err);
   }
 });
 

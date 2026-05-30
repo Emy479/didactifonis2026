@@ -34,17 +34,28 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Rate limiting: 100 requests per 15 minutes per IP
-app.use(rateLimit({
+// Rate limiting global: 100 requests per 15 minutes per IP
+const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-}));
+});
+app.use(globalLimiter);
+
+// Rate limiting estricto para endpoints de autenticación: 20 requests per 15 minutes per IP
+// Protege contra fuerza bruta en /login y /register.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados intentos. Intenta nuevamente en 15 minutos.' },
+});
 
 // Routes
 app.use('/api', healthRouter);
-app.use('/api/auth', authRouter);
+app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/children', childrenRouter);
@@ -76,6 +87,24 @@ if (process.env.DEMO_MODE === 'true' && ENV === 'production') {
   console.error('DEMO_MODE no puede habilitarse en produccion. Ignorando.');
   process.env.DEMO_MODE = 'false';
 }
+
+// ── Error handler global ─────────────────────────────────────────────────────
+// Captura cualquier error enviado con next(err) desde rutas y controladores.
+// Devuelve siempre { message } en JSON, nunca HTML ni stack trace en producción.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, _next) => {
+  const isDev = ENV !== 'production';
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || 'Error interno del servidor';
+
+  if (isDev) {
+    console.error('[ERROR]', status, message, err.stack);
+  } else {
+    console.error('[ERROR]', status, message);
+  }
+
+  return res.status(status).json({ message });
+});
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT} [${ENV}]`);
