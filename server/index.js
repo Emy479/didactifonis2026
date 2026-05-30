@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 
 const healthRouter = require('./routes/health');
+const authRouter = require('./routes/auth');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(rateLimit({
 
 // Routes
 app.use('/api', healthRouter);
+app.use('/api/auth', authRouter);
 
 // MongoDB connection — non-fatal: app stays up even if DB is unavailable
 const mongoUri = process.env.MONGODB_URI;
