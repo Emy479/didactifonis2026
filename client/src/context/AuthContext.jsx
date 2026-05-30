@@ -4,16 +4,16 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [initializing, setInitializing] = useState(true);
 
   // Al montar: hidratar desde userData almacenado (objeto completo del servidor).
-  // No se decodifica el JWT porque el payload solo contiene { id, role, iat, exp }
-  // y los dashboards necesitan name, email, subscription, etc.
+  // initializing=true bloquea PrivateRoute hasta que termine la lectura de localStorage,
+  // evitando la race condition que redirige a /login antes de restaurar la sesión.
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     const storedUser = localStorage.getItem('auth_user');
     if (token && storedUser) {
       try {
-        // Validar que el token no esté expirado antes de restaurar la sesión
         const segments = token.split('.');
         if (segments.length !== 3) throw new Error('JWT mal formado');
         const payload = JSON.parse(atob(segments[1]));
@@ -26,6 +26,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('auth_user');
       }
     }
+    setInitializing(false);
   }, []);
 
   const login = (token, userData) => {
@@ -41,7 +42,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, initializing, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
