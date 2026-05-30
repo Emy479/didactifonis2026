@@ -15,10 +15,12 @@ function HeroSection() {
               </p>
             </div>
 
-            {/* Headline */}
-            <h1 className="font-heading font-bold text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-4">
-              Aprende{' '}
-              <span className="text-optimism">jugando</span>
+            {/* Headline — dos líneas explícitas */}
+            <h1 className="font-heading font-bold text-white leading-none mb-6">
+              <span className="block text-6xl md:text-7xl lg:text-8xl">Aprende</span>
+              <span className="block text-6xl md:text-7xl lg:text-8xl text-optimism">
+                jugando ✦
+              </span>
             </h1>
 
             {/* Subheadline */}
@@ -78,32 +80,50 @@ function HeroSection() {
               <img
                 src="/assets/personajes/Nino.png"
                 alt="Nino jugando con actividades fonoaudiologicas"
-                className="w-64 sm:w-72 lg:w-80 object-contain drop-shadow-xl relative z-10"
+                className="w-72 lg:w-96 object-contain drop-shadow-xl relative z-10"
               />
 
-              {/* Tarjeta flotante — progreso 30% */}
-              <div className="absolute top-8 -left-6 bg-white rounded-2xl shadow-md px-4 py-3 z-20 flex items-center gap-3 min-w-max">
-                <div className="w-10 h-10 rounded-xl bg-gradient-energy flex items-center justify-center flex-shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-                  </svg>
+              {/* Tarjeta flotante 1 — progreso semanal (superior izquierda) */}
+              <div className="absolute -top-4 -left-8 bg-white rounded-2xl shadow-lg px-4 py-3 z-20 min-w-[160px]">
+                <p className="font-body text-xs text-text-soft mb-1">Progreso semanal</p>
+                <div className="flex items-end gap-1 h-8">
+                  {[40, 65, 45, 80, 70, 90, 75].map((h, i) => (
+                    <div key={i} className="flex-1 rounded-sm bg-gradient-main" style={{ height: `${h}%` }} />
+                  ))}
                 </div>
-                <div>
-                  <p className="font-heading font-bold text-lg text-text-strong leading-none">30%</p>
-                  <p className="font-body text-xs text-text-soft">Progreso hoy</p>
-                </div>
+                <p className="font-heading font-bold text-sm text-text-strong mt-1">+30% esta semana</p>
               </div>
 
-              {/* Tarjeta flotante — estrellas */}
-              <div className="absolute bottom-12 -right-4 bg-white rounded-2xl shadow-md px-4 py-3 z-20 min-w-max">
-                <div className="flex items-center gap-1 mb-1">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <svg key={i} xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-optimism" viewBox="0 0 20 20" fill="currentColor">
+              {/* Tarjeta flotante 2 — actividad completada (superior derecha) */}
+              <div className="absolute top-4 -right-6 bg-white rounded-2xl shadow-lg px-4 py-3 z-20 min-w-[140px]">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-7 h-7 rounded-lg bg-creative/10 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-creative" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="font-heading font-bold text-sm text-text-strong">Actividad</p>
+                </div>
+                <p className="font-body text-xs text-text-soft">Completada con exito</p>
+                <div className="flex gap-0.5 mt-1.5">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <svg key={i} className="w-3.5 h-3.5 text-optimism" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
                 </div>
-                <p className="font-body text-xs text-text-soft">Actividad completada</p>
+              </div>
+
+              {/* Tarjeta flotante 3 — seguimiento activo (inferior) */}
+              <div className="absolute -bottom-2 -left-4 bg-white rounded-2xl shadow-lg px-4 py-3 z-20 min-w-[160px]">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-creative flex-shrink-0" />
+                  <div>
+                    <p className="font-heading font-bold text-xs text-text-strong">Seguimiento activo</p>
+                    <p className="font-body text-xs text-text-soft">Dr. Martinez</p>
+                  </div>
+                  <div className="w-2 h-2 rounded-full bg-primary ml-auto flex-shrink-0 animate-pulse" />
+                </div>
               </div>
             </div>
           </div>
@@ -114,48 +134,6 @@ function HeroSection() {
 }
 
 // --- Sección 2: Propuesta de valor ---
-const valuePropCards = [
-  {
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
-      </svg>
-    ),
-    title: 'Aprende jugando',
-    subtitle: 'Para el nino',
-    description: 'Actividades divertidas y personalizadas que hacen que cada sesion sea una aventura. Los ninos aprenden sin darse cuenta.',
-    accent: 'text-creative',
-    bg: 'bg-creative/10',
-    border: 'border-creative/20',
-  },
-  {
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-      </svg>
-    ),
-    title: 'Seguimiento en Tiempo Real',
-    subtitle: 'Para el profesional',
-    description: 'Panel de gestion claro y ordenado. Asigna actividades, monitorea el progreso y ajusta la terapia segun los resultados.',
-    accent: 'text-accent',
-    bg: 'bg-accent/10',
-    border: 'border-accent/20',
-  },
-  {
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-      </svg>
-    ),
-    title: 'Consulta Segura',
-    subtitle: 'Para el tutor',
-    description: 'Accede a las actividades de tu hijo/a, sigue su progreso y comunicate con el profesional en un entorno completamente seguro.',
-    accent: 'text-primary',
-    bg: 'bg-primary/10',
-    border: 'border-primary/20',
-  },
-]
-
 function ValuePropSection() {
   return (
     <section id="beneficios" className="py-20 bg-white">
@@ -170,25 +148,69 @@ function ValuePropSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {valuePropCards.map((card) => (
-            <div
-              key={card.title}
-              className={`bg-surface rounded-card p-8 shadow-sm hover:shadow-md transition-shadow border ${card.border}`}
-            >
-              <div className={`${card.bg} ${card.accent} w-14 h-14 rounded-2xl flex items-center justify-center mb-5`}>
-                {card.icon}
-              </div>
-              <p className={`font-body text-xs font-semibold uppercase tracking-wide ${card.accent} mb-1`}>
-                {card.subtitle}
-              </p>
-              <h3 className="font-heading font-bold text-xl text-text-strong mb-3">
-                {card.title}
-              </h3>
-              <p className="font-body text-text-soft leading-relaxed">
-                {card.description}
-              </p>
+          {/* Card 1 — Para el niño */}
+          <div className="bg-surface rounded-card p-8 shadow-sm hover:shadow-md transition-shadow border border-creative/20 bg-gradient-to-b from-creative/5 to-transparent">
+            <img
+              src="/assets/personajes/Nino.png"
+              alt="Nino aprendiendo jugando"
+              className="h-32 object-contain mx-auto mb-4"
+            />
+            <div className="bg-creative/10 text-creative w-14 h-14 rounded-2xl flex items-center justify-center mb-5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
+              </svg>
             </div>
-          ))}
+            <p className="font-body text-xs font-semibold uppercase tracking-wide text-creative mb-1">
+              Para el nino
+            </p>
+            <h3 className="font-heading font-bold text-2xl text-text-strong mb-3">
+              Aprende jugando
+            </h3>
+            <p className="font-body text-text-soft leading-relaxed">
+              Actividades divertidas y personalizadas que hacen que cada sesion sea una aventura. Los ninos aprenden sin darse cuenta.
+            </p>
+          </div>
+
+          {/* Card 2 — Para el tutor */}
+          <div className="bg-surface rounded-card p-8 shadow-sm hover:shadow-md transition-shadow border border-primary/20">
+            <img
+              src="/assets/personajes/Nina.jpg"
+              alt="Nina con su tutor"
+              className="h-32 object-contain mx-auto mb-4"
+            />
+            <div className="bg-primary/10 text-primary w-14 h-14 rounded-2xl flex items-center justify-center mb-5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+            </div>
+            <p className="font-body text-xs font-semibold uppercase tracking-wide text-primary mb-1">
+              Para el tutor
+            </p>
+            <h3 className="font-heading font-bold text-2xl text-text-strong mb-3">
+              Consulta Segura
+            </h3>
+            <p className="font-body text-text-soft leading-relaxed">
+              Accede a las actividades de tu hijo/a, sigue su progreso y comunicate con el profesional en un entorno completamente seguro.
+            </p>
+          </div>
+
+          {/* Card 3 — Para el profesional */}
+          <div className="bg-surface rounded-card p-8 shadow-sm hover:shadow-md transition-shadow border border-accent/20">
+            <div className="w-20 h-20 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mb-5 mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              </svg>
+            </div>
+            <p className="font-body text-xs font-semibold uppercase tracking-wide text-accent mb-1">
+              Para el profesional
+            </p>
+            <h3 className="font-heading font-bold text-2xl text-text-strong mb-3">
+              Seguimiento en Tiempo Real
+            </h3>
+            <p className="font-body text-text-soft leading-relaxed">
+              Panel de gestion claro y ordenado. Asigna actividades, monitorea el progreso y ajusta la terapia segun los resultados.
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -246,7 +268,7 @@ function HowItWorksSection() {
           {/* Linea horizontal punteada entre pasos — solo desktop */}
           <div className="hidden md:block absolute top-10 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-0.5 border-t-2 border-dashed border-accent/30" />
 
-          {steps.map((step, index) => (
+          {steps.map((step) => (
             <div key={step.number} className="flex flex-col items-center text-center relative">
               {/* Circulo numero */}
               <div className="w-20 h-20 rounded-full bg-gradient-main flex flex-col items-center justify-center mb-5 shadow-sm relative z-10">
@@ -299,6 +321,11 @@ function PlansSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Plan Padres / Tutores */}
           <div className="bg-surface rounded-card p-8 shadow-sm border border-primary/20 hover:shadow-md transition-shadow">
+            <img
+              src="/assets/personajes/Nina.jpg"
+              alt="Nina representando a la familia"
+              className="h-28 object-contain block mx-auto mb-2"
+            />
             <div className="mb-6">
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -345,6 +372,11 @@ function PlansSection() {
               </span>
             </div>
 
+            <img
+              src="/assets/personajes/Nino.png"
+              alt="Nino representando al beneficiario del profesional"
+              className="h-28 object-contain block mx-auto mb-2"
+            />
             <div className="mb-6">
               <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -390,7 +422,7 @@ function PlansSection() {
 // --- Sección 5: CTA final ---
 function FinalCtaSection() {
   return (
-    <section className="bg-gradient-creative py-20 overflow-hidden">
+    <section className="bg-gradient-main py-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           {/* Columna izquierda */}
@@ -414,7 +446,7 @@ function FinalCtaSection() {
             <img
               src="/assets/personajes/Nina.jpg"
               alt="Nina aprendiendo con Didactifonis"
-              className="w-56 sm:w-64 lg:w-72 object-contain drop-shadow-xl rounded-2xl"
+              className="w-64 lg:w-80 object-contain drop-shadow-xl"
             />
           </div>
         </div>

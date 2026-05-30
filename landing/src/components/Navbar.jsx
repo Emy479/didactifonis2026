@@ -5,7 +5,7 @@ const navLinks = [
   { label: 'Inicio', to: '/' },
   { label: '¿Cómo funciona?', to: '/#como-funciona' },
   { label: 'Beneficios', to: '/#beneficios' },
-  { label: 'Para quién es', to: '/#para-quien' },
+  { label: 'Para quién es', to: '/#planes' },
   { label: 'Recursos', to: '/recursos' },
   { label: 'Contacto', to: '/contacto' },
 ]
