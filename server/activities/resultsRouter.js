@@ -1,8 +1,8 @@
 const { Router } = require('express');
 const ActivityResult = require('./ActivityResult');
-const Assignment = require('../../models/Assignment');
-const Child = require('../../models/Child');
-const { protect, requireActiveSubscription } = require('../../middleware/auth');
+const Assignment = require('../models/Assignment');
+const Child = require('../models/Child');
+const { protect, requireActiveSubscription } = require('../middleware/auth');
 
 const router = Router();
 
