@@ -12,6 +12,7 @@ const subscriptionRouter = require('./routes/subscription');
 const paymentRouter = require('./routes/payment');
 const childrenRouter = require('./routes/children');
 const resultsRouter = require('./activities/resultsRouter');
+const sessionsRouter = require('./activities/sessionsRouter');
 const activitiesRouter = require('./routes/activities');
 const assignmentsRouter = require('./routes/assignments');
 const adminRouter = require('./routes/admin');
@@ -31,8 +32,20 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// ALTO-2: el endpoint /api/activities/results requiere un payload de hasta 256kb
+// (score + hasta EVENTS_INGEST_CAP eventos). Se monta su parser de 256kb ANTES
+// del parser global de 10kb para garantizar que sea el primero en procesar el body
+// en esa ruta. Express ejecuta middlewares en orden de registro; si el global de
+// 10kb se montara antes, rechazaría payloads de results antes de llegar al router.
+// BAJO-1: orden explícito sessions → results → activitiesGenérico en la cadena de
+// rutas para que Express no capture las rutas específicas con el prefijo genérico.
+app.use('/api/activities/results', express.json({ limit: '256kb' }));
+
+// ALTO-2: límite global reducido a 10kb. Aplica a todos los endpoints EXCEPTO
+// /api/activities/results, cuyo body ya fue parseado por el middleware anterior.
+// El endpoint /api/activities/sessions no necesita más de ~2kb (solo assignmentId).
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 
 // Rate limiting global: 100 requests per 15 minutes per IP
 const globalLimiter = rateLimit({
@@ -59,6 +72,8 @@ app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/children', childrenRouter);
+// BAJO-1: sessions → results → activitiesGenérico. Rutas específicas primero.
+app.use('/api/activities/sessions', sessionsRouter);
 app.use('/api/activities/results', resultsRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/assignments', assignmentsRouter);
@@ -81,6 +96,28 @@ if (mongoUri) {
 
 const PORT = process.env.PORT || 3001;
 const ENV = process.env.NODE_ENV || 'development';
+
+// BAJO-2: validar API_BASE_URL al arranque.
+// Variable obligatoria en staging/producción para construir resultsEndpoint en el
+// payload 2.A (contrato de arranque). En development se tolera la ausencia pero se
+// advierte: el juego recibirá una URL relativa ("/api/activities/results") que puede
+// no ser válida fuera de un entorno con proxy configurado.
+const apiBaseUrl = process.env.API_BASE_URL;
+if (!apiBaseUrl || !/^https?:\/\/.+/.test(apiBaseUrl)) {
+  if (ENV === 'production') {
+    console.error(
+      '[CONFIG] FATAL: API_BASE_URL no definida o no es una URL absoluta. ' +
+      'El contrato de arranque 2.A emitirá resultsEndpoint inválido. ' +
+      'Define API_BASE_URL=https://tu-dominio.com en las variables de entorno.'
+    );
+  } else {
+    console.warn(
+      '[CONFIG] ADVERTENCIA: API_BASE_URL no definida o no es URL absoluta. ' +
+      'resultsEndpoint en el payload 2.A será relativo. ' +
+      'Esto es aceptable en desarrollo local con proxy, pero debe configurarse en staging/producción.'
+    );
+  }
+}
 
 // DEMO_MODE solo disponible fuera de produccion
 if (process.env.DEMO_MODE === 'true' && ENV === 'production') {
