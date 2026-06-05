@@ -1,14 +1,18 @@
 /**
- * shared/index.js — Constantes compartidas (ESM, para el cliente Vite).
+ * shared/index.cjs — Versión CommonJS de las constantes compartidas.
  *
  * INTEROP ESM/CJS:
- * El cliente (Vite/"type":"module") importa este archivo con `import ... from`.
- * El server (Node.js/CJS) usa shared/index.cjs con `require`.
- * Mantener ambos archivos en sincronía al añadir constantes.
+ * El cliente (Vite/ESM) importa shared/index.js (sintaxis `export const`).
+ * El server (Node.js/CJS) hace require('../../shared/index.cjs').
+ * Este archivo espeja todas las constantes de index.js en formato CJS,
+ * manteniendo ambos sin tocar sus sistemas de módulos. Es el mecanismo
+ * mínimo que evita transformaciones de build.
+ *
+ * Al añadir una constante nueva: actualizar AMBOS archivos en paralelo.
  */
 
 // ── Roles ────────────────────────────────────────────────────────────────────
-export const ROLES = {
+const ROLES = {
   ADMIN: 'admin',
   PROFESIONAL: 'profesional',
   TUTOR: 'tutor',
@@ -16,14 +20,14 @@ export const ROLES = {
 
 // ── Versión del contrato de ingesta de resultados ────────────────────────────
 // Contrato 2.B, cerrado en v0.6. Ver docs/plan-sdk-engine-juegos.md §2.B.
-export const CONTRACT_VERSION = '1.0';
+const CONTRACT_VERSION = '1.0';
 
 // ── Catálogo de tipos de evento v1.0 ─────────────────────────────────────────
 // Capa 1 educativa — telemetría de sesión. No se derivan métricas clínicas de estos eventos.
 // Los juegos externos DEBEN usar solo estos tipos en el campo `events[].type`.
 // Tipos desconocidos (fuera de catálogo, sin prefijo x_) se CONSERVAN como custom — NO se rechazan (Q-EVT-3).
 // El SDK emite un warning en dev para tipos no estándar. El backend los almacena sin derivar métrica.
-export const EVENT_TYPES = {
+const EVENT_TYPES = {
   ACTIVITY_STARTED: 'activity_started',
   ACTIVITY_COMPLETED: 'activity_completed',
   PAUSED: 'paused',
@@ -39,12 +43,12 @@ export const EVENT_TYPES = {
 // PROVISIONAL — a recalibrar en E2 con datos reales de sesión.
 // Protección del servidor: integridad del documento (límite 16 MB MongoDB)
 // y defensa contra payload no confiable. NO es un tope de contrato de juego.
-export const EVENTS_INGEST_CAP = 200;
+const EVENTS_INGEST_CAP = 200;
 
 // ── Forma canónica del contrato de resultados 2.B ────────────────────────────
 // Referencia de campos aceptados en POST /api/activities/results.
 // Validación estricta implementada en E1. Aquí: descripción compartida.
-export const RESULT_CONTRACT_SHAPE = {
+const RESULT_CONTRACT_SHAPE = {
   // Obligatorios
   assignmentId: 'string (ObjectId)',
   childId: 'string (ObjectId)',
@@ -61,4 +65,12 @@ export const RESULT_CONTRACT_SHAPE = {
   // Meta
   schemaVersion: 'string — versión del contrato (CONTRACT_VERSION)',
   metadata: 'object — datos adicionales libres del juego (no se procesan)',
+};
+
+module.exports = {
+  ROLES,
+  CONTRACT_VERSION,
+  EVENT_TYPES,
+  EVENTS_INGEST_CAP,
+  RESULT_CONTRACT_SHAPE,
 };

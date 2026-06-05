@@ -56,6 +56,15 @@ const activitySchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Umbral mínimo de scorePercent para considerar la actividad como superada (Capa 1 educativa).
+    // Lo fija el Admin al subir la actividad. Sin override de tutor en MVP (plan §8.6 v0.6).
+    // No es scoring clínico ni SaMD: es un parámetro educativo de aprobación.
+    passThreshold: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 60,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

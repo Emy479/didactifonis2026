@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 // Capa 1 educativa — NO clínica. Sin datos de salud ni scoring clínico.
+// scorePercent/passed son derivados server-side; rawScore/maxScore son informativos del juego (entrada no confiable).
 const activityResultSchema = new mongoose.Schema(
   {
     assignmentId: {
@@ -22,12 +23,27 @@ const activityResultSchema = new mongoose.Schema(
       type: String,
       default: '1.0',
     },
-    score: {
+    // Capa 1 educativa. rawScore/maxScore son informativos del juego (entrada no confiable, sin transformar).
+    rawScore: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+    // Capa 1 educativa. Máximo de la escala interna del juego (entrada no confiable, sin transformar).
+    maxScore: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+    // Capa 1 educativa. scorePercent/passed son derivados server-side; rawScore/maxScore son informativos del juego (entrada no confiable).
+    // Derivación real implementada en E1.
+    scorePercent: {
       type: Number,
       min: 0,
       max: 100,
       default: null,
     },
+    // passed: Capa 1 educativa. Derivado server-side en E1 usando passThreshold de la actividad.
     passed: {
       type: Boolean,
       default: null,
@@ -41,6 +57,17 @@ const activityResultSchema = new mongoose.Schema(
       type: Number,
       min: 0,
       default: null,
+    },
+    // Capa 1 educativa — traza de telemetría; almacenada tal cual; no se deriva métrica de ella (frontera SaMD).
+    events: {
+      type: [
+        {
+          type: { type: String, required: true },
+          timestamp: { type: Date, required: true },
+          payload: { type: mongoose.Schema.Types.Mixed, default: {} },
+        },
+      ],
+      default: [],
     },
     metadata: {
       type: mongoose.Schema.Types.Mixed,
