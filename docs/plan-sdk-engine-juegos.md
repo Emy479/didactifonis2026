@@ -653,6 +653,55 @@ esta visión y su viabilidad están en §8 (Consultas resueltas, consultas 1, 2 
 definiciones divergentes (el problema de §1). El esquema se extrae a `/shared` en Fase E0 y
 se publica como paquete versionable.
 
+#### Refinamiento operativo de ADR-SDK-05 (arquitecto, 2026-06-09) — cómo convive sin mezclar
+
+> No reabre la decisión (sigue siendo *repo separado + contrato como paquete*). Concreta
+> **cómo** se ejecuta para resolver la preocupación de Emiliano: trabajar ambos lados con
+> contexto compartido **sin** mezclar código y sin que el monorepo se vuelva inmanejable.
+
+**1. Topología: tres piezas, no dos.** La costura compartida NO es "plataforma vs. Engine";
+es **el contrato**. Quedan tres unidades con fronteras de paquete:
+
+| Pieza | Qué es | Dónde vive | Depende de |
+| :-- | :-- | :-- | :-- |
+| **contrato** | `/shared` de hoy (catálogo de eventos, cap, forma 2.A/2.B, versiones) | Hoy en este repo; se promueve a repo neutral al iniciar Frente B | — (no depende de nadie) |
+| **plataforma** | este repo (`/client` + `/server` + `/landing`) | este repo | contrato |
+| **Engine/SDK** | autoría + runtime de juegos | **repo separado (a crear en Frente B)** | contrato |
+
+La no-mezcla queda **garantizada por la frontera de paquete**, no por disciplina: `plataforma`
+y `engine` solo pueden importar desde `contrato`; nunca uno del otro. El Engine **jamás** vive
+en este repo (`CLAUDE.md §3`; el bundle del juego es código externo no confiable).
+
+**2. Hogar del contrato — "se queda ahora, se promueve después".** Hoy la plataforma es el
+**único consumidor** de `/shared` y lo hace por ruta relativa: funciona, no se toca
+(`CLAUDE.md §5`, no reescribir lo que funciona). El contrato se **promueve a su propio repo
+neutral** (`didactifonis-contract`, paquete `@didactifonis/contract`) **en el momento en que el
+Engine necesite consumirlo (Frente B)**, no antes. Promoverlo es mecánico: la plataforma cambia
+`require('../../shared/index.cjs')` por `require('@didactifonis/contract')`.
+
+**3. Estrategia de versionado — "link ahora, pin después".** Mientras el contrato aún se mueve
+(estamos en E2: falta recalibrar `EVENTS_INGEST_CAP`, definir `bundleUrl`, etc.) se consume
+**enlazado en local** (npm/pnpm workspace o `npm link`): se edita una vez y ambos lados lo ven
+vivo, sin publicar. Cuando el contrato se estabilice (post-piloto) se **publica con versión fija**
+y cada repo lo *pinea* (`@didactifonis/contract@1.0.0`), activando la ventana N/N-1 de §2.E.
+Ergonomía de monorepo durante el MVP; rigor de multi-repo al madurar; sin reescritura en la
+transición (solo cambia cómo se resuelve la dependencia).
+
+**4. Contexto compartido sin código junto.** La cercanía de archivos NO es lo que da contexto.
+Se obtiene visión de ambos lados con: (a) checkout lado a lado bajo una carpeta padre común;
+(b) los docs (`CLAUDE.md`, `especificacion-funcional.md`, este plan) que ya son el contexto
+compartido de los agentes. No hace falta fusionar árboles de git para tener el panorama.
+
+**5. Deuda menor del contrato a saldar en la promoción:** los dos archivos espejo
+(`index.js` ESM / `index.cjs` CJS, sincronizados a mano) son un riesgo de divergencia. Al
+empaquetarlo se resuelve con un único fuente + `exports` map (ESM/CJS condicional), eliminando
+la sincronización manual. No urgente; se hace al promover, no ahora.
+
+**Cuándo creas repos (respuesta a Emiliano):** **ahora NO creas ninguno.** El trabajo inmediato
+es E2 **Frente A (launcher del niño), que vive en este repo** (`/client`). Crearás el repo del
+**Engine** — e, idealmente, el repo **neutral del contrato** — al arrancar **Frente B (el SDK)**.
+El arquitecto te avisará en ese punto exacto.
+
 ### ADR-SDK-06 — Modelo de score (normalización) — RESUELTA (2026-05-31)
 **Contexto:** §1 dejó pendiente el rango del `score`. El modelo Mongo lo acotaba `0–100`; el
 contrato 2.B traía `score: 850`. Emiliano resolvió: cada juego tiene su propia escala interna
