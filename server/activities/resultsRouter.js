@@ -13,12 +13,19 @@
  *   - Score derivado server-side; cualquier scorePercent/passed del juego es ignorado.
  *   - Eventos: filtrado de malformados + cap defensivo desde shared/index.cjs.
  *
+ * Minimización PII (Ley 21.719 — D4 aprobado 2026-06-09):
+ *   `childId` NO se exige ni se usa desde el body. Se deriva exclusivamente de
+ *   `tokenDoc.childId` (el token fue emitido por el servidor con el childId correcto).
+ *   Si el juego envía `childId` en el body (cliente legacy), se IGNORA sin error.
+ *   Esto evita que el identificador del menor viaje en el payload del juego externo.
+ *
  * Arrastre E0: consume EVENTS_INGEST_CAP, EVENT_TYPES y CONTRACT_VERSION desde
  * shared/index.cjs — sin literales duplicados (ADR-SDK-05).
  *
  * ORDEN DE OPERACIONES (garantía de correctitud):
  *   1. Validar presencia de ids y sessionToken (400/401 sin tocar DB).
  *   2. Leer token en modo solo-lectura → determinar 401/410 antes del claim.
+ *      childId se extrae de tokenDoc en este paso; el body no lo provee.
  *   3. Si el token ya está 'used' → camino idempotente (200 + resultId real).
  *   4. Validar rawScore/maxScore (400) → sin efectos colaterales.
  *   5. Cargar assignment y activity (404) → lecturas, sin efectos colaterales.
@@ -137,7 +144,9 @@ router.post('/', resultsLimiter, resultsJsonParser, async (req, res, next) => {
     const {
       sessionToken,
       assignmentId,
-      childId,
+      // childId del body es IGNORADO (minimización PII, D4 2026-06-09).
+      // El childId se deriva exclusivamente de tokenDoc.childId (paso 2).
+      // Si el juego envía childId en el body (cliente legacy), se descarta silenciosamente.
       activityId,
       rawScore,
       maxScore,
@@ -151,16 +160,18 @@ router.post('/', resultsLimiter, resultsJsonParser, async (req, res, next) => {
     } = req.body;
 
     // ── PASO 1: Validar presencia de campos obligatorios (sin tocar DB) ──────
+    // childId ya no es obligatorio en el body: se deriva del token en el PASO 2.
     if (!sessionToken) {
       return res.status(401).json({ message: 'sessionToken es obligatorio' });
     }
 
-    if (!assignmentId || !childId || !activityId) {
-      return res.status(400).json({ message: 'assignmentId, childId y activityId son obligatorios' });
+    if (!assignmentId || !activityId) {
+      return res.status(400).json({ message: 'assignmentId y activityId son obligatorios' });
     }
 
     // ── PASO 2: Leer token en modo SOLO LECTURA para determinar 401/410 ──────
-    // No se modifica el token aquí. Esta lectura no consome el token.
+    // No se modifica el token aquí. Esta lectura no consume el token.
+    // childId se extrae del token en este paso (minimización PII — el body no lo provee).
     const now = new Date();
     const tokenDoc = await ActivitySessionToken.findOne({ token: sessionToken }).lean();
 
@@ -173,14 +184,18 @@ router.post('/', resultsLimiter, resultsJsonParser, async (req, res, next) => {
       return res.status(410).json({ message: 'sessionToken expirado' });
     }
 
+    // Verificar que assignmentId y activityId del body coinciden con los del token.
+    // childId NO se verifica contra el body: se deriva exclusivamente de tokenDoc.childId.
     if (
       tokenDoc.assignmentId.toString() !== assignmentId ||
-      tokenDoc.childId.toString() !== childId ||
       tokenDoc.activityId.toString() !== activityId
     ) {
       // Token existe pero los ids no coinciden con el body.
       return res.status(401).json({ message: 'sessionToken no corresponde a los ids enviados' });
     }
+
+    // Fuente de verdad del childId: el token (emitido por el servidor con el niño correcto).
+    const childId = tokenDoc.childId;
 
     // ── PASO 3: Camino idempotente — token ya consumido legítimamente ─────────
     // Si el token ya está 'used', devolver el resultado existente sin crear uno nuevo.

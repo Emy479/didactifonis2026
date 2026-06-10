@@ -47,18 +47,21 @@ const EVENTS_INGEST_CAP = 200;
 
 // ── Forma canónica del contrato de resultados 2.B ────────────────────────────
 // Referencia de campos aceptados en POST /api/activities/results.
-// Validación estricta implementada en E1. Aquí: descripción compartida.
+// Validación estricta implementada en E1. Minimización PII D4 (2026-06-09).
 const RESULT_CONTRACT_SHAPE = {
-  // Obligatorios
+  // Obligatorios enviados por el juego/host
   assignmentId: 'string (ObjectId)',
-  childId: 'string (ObjectId)',
+  activityId: 'string (ObjectId)',
+  // childId: DERIVADO SERVER-SIDE del sessionToken (D4, minimización PII Ley 21.719).
+  // El juego/host NO debe enviar childId en el body. Si llega, se ignora silenciosamente.
   // Puntuación (Capa 1 educativa, entrada no confiable del juego)
   rawScore: 'number | null — puntuación cruda en escala del juego',
   maxScore: 'number | null — máximo de la escala interna del juego',
-  // scorePercent y passed son DERIVADOS server-side en E1; el juego puede omitirlos
+  // scorePercent y passed son DERIVADOS server-side; el juego puede omitirlos
   scorePercent: 'number (0–100) | null — canónico, derivado server-side',
   passed: 'boolean | null — derivado server-side usando passThreshold de la actividad',
   // Sesión
+  sessionToken: 'string — token opaco de un solo uso emitido por /api/activities/sessions',
   attemptCount: 'number — intentos dentro de esta sesión',
   durationSeconds: 'number | null — duración total en segundos',
   events: 'array de { type: EVENT_TYPES[key], timestamp: ISO8601, payload?: object }',
