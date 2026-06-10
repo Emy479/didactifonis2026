@@ -30,3 +30,5 @@ coverage/
 
 # Claude Code internals
 .claude/
+.agents/
+skills-lock.json
