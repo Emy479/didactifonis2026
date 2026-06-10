@@ -123,7 +123,7 @@ export default function DashboardNino() {
                 return (
                   <button
                     key={assignment._id}
-                    onClick={() => {/* bundleUrl placeholder — no hace nada aun */}}
+                    onClick={() => navigate(`/nino/game/${assignment._id}`)}
                     className={`bg-gradient-to-br ${color} rounded-2xl p-6 text-white hover:scale-105 transition-transform shadow-lg`}
                   >
                     <div className="w-14 h-14 bg-white/25 rounded-2xl mx-auto mb-4 flex items-center justify-center">

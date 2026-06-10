@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<!--
+  sdk-stub.html — Bundle stub de desarrollo para validar el protocolo postMessage host↔juego.
+
+  ADVERTENCIA: Este archivo es SOLO para desarrollo y pruebas del protocolo E2 Frente A.
+  NO es el SDK real ni un juego real. Su único propósito es ejercer el contrato postMessage
+  definido en docs/postmessage-protocol.md para validar el flujo end-to-end:
+    arranque → getContext → reportEvent(s) → submitResults → respuesta del host
+
+  MEDIO-1: Este archivo vive en client/dev-stubs/ (NO en client/public/) para que Vite
+  no lo copie al build de producción. Vite lo sirve en dev a través del plugin
+  vite-plugin-static-copy configurado en vite.config.js (modo dev únicamente).
+
+  Cuando el SDK real esté disponible (Frente B, bloqueado por ADR-SDK-05),
+  este stub se reemplaza por el bundle del juego real.
+
+  Referencia del protocolo: docs/postmessage-protocol.md
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[STUB] Actividad de prueba — Didactifonis SDK</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Nunito Sans", "Segoe UI", sans-serif;
+      background: #F5F7FA;
+      color: #1B2A41;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(27,42,65,0.10);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #FFD24A22;
+      color: #b87000;
+      border: 1px solid #FFD24A;
+      border-radius: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 3px 10px;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+
+    h1 { font-family: "Poppins", sans-serif; font-size: 1.4rem; font-weight: 700; color: #1B2A41; }
+    p  { font-size: 0.875rem; color: #5F6B7A; line-height: 1.6; }
+
+    .log {
+      background: #F5F7FA;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-family: monospace;
+      font-size: 0.75rem;
+      max-height: 160px;
+      overflow-y: auto;
+      color: #1B2A41;
+    }
+
+    .log-line { padding: 1px 0; border-bottom: 1px solid #e8ecf0; }
+    .log-line:last-child { border: none; }
+    .ok   { color: #18C7D1; }
+    .warn { color: #FF8A3D; }
+    .err  { color: #e53e3e; }
+
+    .btn {
+      background: linear-gradient(135deg, #18C7D1, #4C8DFF);
+      color: white;
+      font-family: "Poppins", sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      width: 100%;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .context-box {
+      background: #e6fafb;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #1B2A41;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">SDK STUB — Solo desarrollo</div>
+    <h1>Actividad de prueba</h1>
+    <p>
+      Este bundle es un stub de desarrollo que ejercita el protocolo postMessage
+      host↔juego. Valida el flujo completo: getContext → reportEvent → submitResults.
+    </p>
+
+    <div>
+      <strong style="font-size:0.8rem;color:#5F6B7A">Contexto recibido del host:</strong>
+      <div class="context-box" id="contextDisplay">Esperando contexto…</div>
+    </div>
+
+    <div>
+      <strong style="font-size:0.8rem;color:#5F6B7A">Log de mensajes:</strong>
+      <div class="log" id="logBox"></div>
+    </div>
+
+    <button class="btn" id="btnStart" disabled>Iniciar secuencia de prueba</button>
+  </div>
+
+  <script>
+    /**
+     * sdk-stub.js — Implementación mínima del lado SDK (juego externo).
+     * Espeja el protocolo definido en docs/postmessage-protocol.md.
+     *
+     * RECORDATORIO: En el SDK real, esta lógica vivirá en la librería JS
+     * del Frente B (bloqueado por ADR-SDK-05). Este stub es solo para validar
+     * el protocolo desde el host.
+     */
+
+    // En un iframe sandboxed sin allow-same-origin, document.referrer está vacío
+    // y window.location.origin es "null". Usamos "*" para postMessage al host
+    // (el host verifica el source, no el origen — ver docs/postmessage-protocol.md §4).
+    // En el SDK real con bundle cross-origin, HOST_ORIGIN se pasa vía initMessage
+    // o se configura al incluir la librería.
+    const HOST_ORIGIN = '*';
+
+    let receivedContext = null;
+    let eventCount = 0;
+
+    // ── Utilidad de log ───────────────────────────────────────────────────────
+    function log(msg, cls) {
+      const box = document.getElementById('logBox');
+      const line = document.createElement('div');
+      line.className = 'log-line ' + (cls || '');
+      line.textContent = new Date().toISOString().slice(11,23) + ' ' + msg;
+      box.appendChild(line);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // ── 1. Solicitar contexto al host (equivale a SDK.getContext()) ───────────
+    function requestContext() {
+      log('→ getContext enviado al host', '');
+      window.parent.postMessage({ type: 'getContext' }, HOST_ORIGIN);
+    }
+
+    // ── 2. Emitir evento al buffer del host (equivale a SDK.reportEvent()) ────
+    function reportEvent(eventType, payload) {
+      eventCount++;
+      log(`→ reportEvent: "${eventType}" (#${eventCount})`, '');
+      window.parent.postMessage(
+        {
+          type: 'reportEvent',
+          payload: { eventType, eventPayload: payload ?? {} },
+        },
+        HOST_ORIGIN
+      );
+    }
+
+    // ── 3. Enviar resultado al host (equivale a SDK.submitResults()) ──────────
+    // ALTO-1 / Ley 21.719 minimización PII: childId NO se incluye en el payload.
+    // El backend lo deriva del sessionToken en el servidor.
+    // El juego no conoce ni envía el childId.
+    function submitResults(result) {
+      log('→ submitResults enviado al host', '');
+      window.parent.postMessage(
+        { type: 'submitResults', payload: result },
+        HOST_ORIGIN
+      );
+    }
+
+    // ── Escuchar respuesta del host ───────────────────────────────────────────
+    window.addEventListener('message', function(event) {
+      // En el SDK real, aquí se validaría que event.origin sea el HOST_ORIGIN conocido.
+      // En el stub sandboxed, el host llega con su origen real (ej. http://localhost:5173).
+      // Para el stub de desarrollo aceptamos cualquier origen del padre.
+      // En producción el SDK real debe verificar el origen explícitamente.
+      if (event.source !== window.parent) {
+        log('WARN: mensaje de origen inesperado descartado (no es el padre)', 'warn');
+        return;
+      }
+
+      const { type, payload } = event.data || {};
+
+      if (type === 'contextResponse') {
+        receivedContext = payload;
+        log('← contextResponse recibido ✓', 'ok');
+
+        // Verificar que NO contiene sessionToken ni JWT (guardrail del host)
+        if (payload && (payload.sessionToken || payload.jwt || payload.token)) {
+          log('ERROR SEGURIDAD: el contexto contiene credenciales — VIOLACION DEL CONTRATO', 'err');
+        } else {
+          log('  Verificado: sin sessionToken ni JWT en contexto ✓', 'ok');
+        }
+
+        // Mostrar contexto recibido
+        document.getElementById('contextDisplay').textContent =
+          JSON.stringify(payload, null, 2);
+
+        // Verificar que no hay PII del menor
+        const hasPII = checkForPII(payload);
+        if (hasPII) {
+          log('ERROR: Posible PII detectada en el contexto — REVISAR HOST', 'err');
+        } else {
+          log('  Verificado: sin PII del menor en contexto ✓', 'ok');
+        }
+
+        // Habilitar botón de secuencia
+        document.getElementById('btnStart').disabled = false;
+      }
+    });
+
+    // ── Heurística básica de detección de PII ─────────────────────────────────
+    function checkForPII(obj) {
+      const piiKeys = ['name','nombre','alias','age','edad','rut','sexo','gender',
+                       'avatar','avatarId','clinico','diagnostico'];
+      const str = JSON.stringify(obj || '').toLowerCase();
+      return piiKeys.some(k => str.includes('"' + k + '"'));
+    }
+
+    // ── Secuencia de prueba completa ──────────────────────────────────────────
+    document.getElementById('btnStart').addEventListener('click', async function() {
+      this.disabled = true;
+      this.textContent = 'Ejecutando…';
+      log('--- Inicio de secuencia de prueba ---', '');
+
+      // Emitir activity_started
+      reportEvent('activity_started', { level: receivedContext?.config?.level });
+      await sleep(400);
+
+      // Simular algunos intentos
+      for (let i = 1; i <= 3; i++) {
+        reportEvent('attempt', { attemptNumber: i, correct: i % 2 === 1 });
+        await sleep(300);
+      }
+
+      // item_answered
+      reportEvent('item_answered', { itemId: 'item-001', correct: true, timeMs: 1200 });
+      await sleep(300);
+
+      // Emitir activity_completed
+      reportEvent('activity_completed', { totalAttempts: 3, correctAttempts: 2 });
+      await sleep(400);
+
+      // Enviar resultado final.
+      // ALTO-1: childId omitido — el backend lo deriva del sessionToken (minimización PII).
+      submitResults({
+        rawScore:        80,
+        maxScore:        100,
+        attemptCount:    3,
+        durationSeconds: null, // el host calcula este valor
+        metadata: {
+          stubMode:      true,
+          eventsEmitted: eventCount,
+        },
+      });
+
+      log('--- Fin de secuencia de prueba ---', '');
+    });
+
+    // ── Utilidad ──────────────────────────────────────────────────────────────
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // ── Iniciar: solicitar contexto al cargar ─────────────────────────────────
+    window.addEventListener('load', function() {
+      log('Stub cargado. Solicitando contexto al host…', '');
+      // Pequeño delay para asegurar que el host está listo
+      setTimeout(requestContext, 200);
+    });
+  </script>
+</body>
+</html>

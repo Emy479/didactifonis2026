@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import DashboardPro from './pages/pro/DashboardPro';
 import DashboardTutor from './pages/tutor/DashboardTutor';
 import DashboardNino from './pages/nino/DashboardNino';
+import GameHost from './pages/nino/GameHost';
 import DashboardAdmin from './pages/admin/DashboardAdmin';
 import SubscriptionStatus from './pages/subscription/SubscriptionStatus';
 import SubscriptionRequired from './pages/subscription/SubscriptionRequired';
@@ -45,6 +46,9 @@ export default function App() {
 
             {/* Niño: accede siempre vía sesión activa del tutor (spec §2) */}
             <Route element={<PrivateRoute allowedRoles={['tutor']} />}>
+              {/* GameHost antes del wildcard para que tenga precedencia */}
+              <Route path="/nino/game/:assignmentId" element={<GameHost />} />
+              <Route path="/nino" element={<DashboardNino />} />
               <Route path="/nino/*" element={<DashboardNino />} />
             </Route>
 
