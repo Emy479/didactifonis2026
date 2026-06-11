@@ -1027,6 +1027,14 @@ del arquitecto aceptada.)
   veredicto y de las decisiones abiertas en §3.1.
 
 ### Fase E2 — SDK JS cliente (proyecto SDK)
+- **Estado (2026-06-11): Frente A (launcher del niño, este repo) COMPLETADO y VALIDADO.**
+  GameHost implementado en `client/src/pages/nino/GameHost.jsx` (iframe sandboxed + postMessage,
+  protocolo en `docs/postmessage-protocol.md`); DEP-1 `bundleUrl` resuelta (modelo `Activity` +
+  `runtime.bundleUrl` en 2.A). QA en verde: `docs/qa-e2-frente-a.md` (runtime backend 7/7 +
+  inspección frontend; observación: evento `abandoned` no persiste server-side — limitación de
+  diseño aceptada, seguimiento en Frente B/E3; smoke manual en browser pendiente del usuario).
+  **Frente B (el SDK propiamente tal) sigue PENDIENTE**, bloqueado por la decisión operativa de
+  ADR-SDK-05 (repo/publicación/consumo de `/shared`).
 - **Objetivo:** librería que el autor del juego importa; abstrae el canal (ADR-SDK-03).
 - **Entregables:** API mínima `getContext()` (lee el payload de arranque 2.A), `submitResults()`
   (valida contra el esquema y envía 2.B), cola offline + reintento idempotente (2.E); tipos
@@ -1056,9 +1064,10 @@ del arquitecto aceptada.)
 - **Agentes:** `didactifonis-frontend` (juego) + `didactifonis-qa` (E2E) + `didactifonis-architect`
   (revisión de integración).
 
-**Orden y paralelismo:** **E0 y E1 COMPLETADAS (2026-06-04).** Próximo frente: **E2** (SDK JS
-cliente / launcher del niño), ya desbloqueado por el esquema en `/shared` y el arranque 2.A emitido
-en E1. E3 requiere ADR-SDK-04. E4 puede ir en paralelo con E3 (comparten esquema de manifest). E5 al
+**Orden y paralelismo:** **E0 y E1 COMPLETADAS (2026-06-04). E2 Frente A (launcher) COMPLETADO y
+VALIDADO (2026-06-11).** Próximo frente: **E2 Frente B** (SDK JS para autores de juegos), que
+requiere cerrar la decisión operativa de ADR-SDK-05 (repo, publicación, consumo de `/shared`).
+E3 requiere ADR-SDK-04. E4 puede ir en paralelo con E3 (comparten esquema de manifest). E5 al
 final. **Regla de oro: una funcionalidad a la vez; no abrir frentes que se pisen.**
 
 ---

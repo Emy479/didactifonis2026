@@ -1,8 +1,10 @@
 # Brief E2 — SDK JS de juegos + Launcher del niño
 
-**Fecha:** 2026-06-09
+**Fecha:** 2026-06-09 (actualizado 2026-06-11)
 **Arquitecto:** didactifonis-architect
-**Estado:** E0 y E1 (backend) ACEPTADAS e integradas en `master`. E2 es el siguiente eslabón.
+**Estado:** E0 y E1 (backend) ACEPTADAS e integradas en `master`. **Frente A (launcher)
+IMPLEMENTADO y VALIDADO por QA (2026-06-11, ver `docs/qa-e2-frente-a.md` — veredicto VERDE).
+DEP-1 RESUELTA.** Frente B (SDK) sigue pendiente de ADR-SDK-05 operativo.
 **Plan base:** `docs/plan-sdk-engine-juegos.md` (v0.7). Contrato 2.A + 2.B CERRADO.
 
 ---
@@ -54,8 +56,8 @@ acceda jamás a credenciales ni a datos del menor.
    payload 2.A: `contractVersion`, `sessionToken`, `assignmentId`, `activityId`, `config`, `runtime`.
 2. **Vista de juego (host).** Componente nuevo de página completa (p. ej. `GameHost.jsx`) que:
    - Renderiza un `<iframe>` que carga el bundle del juego.
-     - **Dependencia abierta:** hoy NO existe `bundleUrl` en el modelo `Activity` ni en el payload
-       2.A. El launcher necesita una URL de bundle para cargar el iframe. Ver §A.6 (Dependencias).
+     - **Dependencia (RESUELTA 2026-06-11):** `bundleUrl` existe en `Activity` y se propaga en
+       `runtime` del payload 2.A (commit c4050cc). Ver §A.6 (Dependencias).
    - Aplica `sandbox` al iframe (mínimo `allow-scripts`; **sin** `allow-same-origin` si el bundle
      va en otro origen — ver criterio de seguridad A.4).
    - Mantiene el `sessionToken` y el payload 2.A **en memoria del host** (estado de React), nunca
@@ -132,10 +134,11 @@ acceda jamás a credenciales ni a datos del menor.
 
 ### A.6 Dependencias
 
-- **DEP-1 (dura): `bundleUrl`.** No existe en `Activity` ni en el payload 2.A. Decisión del arquitecto
-  pendiente: ¿se añade `bundleUrl` a `Activity` (lo sube el Admin) y se propaga en `runtime` del
-  payload 2.A? Esto es trabajo de **backend** (modelo + sessionsRouter) y debe resolverse para la
-  integración real. **No bloquea** el desarrollo del protocolo contra un stub (R1).
+- **DEP-1 — RESUELTA (2026-06-11).** `bundleUrl` se añadió a `Activity` y se propaga en
+  `runtime.bundleUrl` del payload 2.A (`activity.bundleUrl ?? null` — commit c4050cc, backend).
+  El GameHost resuelve el bundle en tres ramas: bundleUrl del backend → usar siempre; null en
+  dev → stub local `/__dev-stubs/`; null en prod → fase ERROR sin montar iframe (commit c5d48b2,
+  frontend). Validado end-to-end cross-origin por QA: `docs/qa-e2-frente-a.md`.
 - **DEP-2 (blanda): contrato del protocolo postMessage.** El frente A define el protocolo host↔juego;
   el frente B (SDK) debe espejarlo exactamente. Documentar el protocolo en este repo (en `/shared` o
   `/docs`) para que sea fuente única cuando se desbloquee el SDK.
@@ -182,8 +185,8 @@ espejando el protocolo definido en el Frente A (DEP-2).
 
 1. **ADR-SDK-05 (dónde vive el SDK):** repo separado vs este repo; cómo se publica; cómo consume
    `/shared`. **Bloquea el Frente B.** No bloquea el Frente A si se usa un SDK stub.
-2. **`bundleUrl` (DEP-1):** ¿se añade a `Activity` + payload 2.A? Trabajo de backend; necesario para
-   la integración real del iframe. No bloquea el desarrollo del protocolo contra stub.
+2. **`bundleUrl` (DEP-1):** ~~¿se añade a `Activity` + payload 2.A?~~ **RESUELTA 2026-06-11**
+   (commits c4050cc + c5d48b2; validación QA en `docs/qa-e2-frente-a.md`).
 
 ## Secuenciación recomendada
 
