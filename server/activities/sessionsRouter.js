@@ -7,6 +7,8 @@
  *
  * Payload de respuesta 2.A (v0.2, contrato cerrado):
  *   contractVersion, sessionToken, assignmentId, activityId, config, runtime.
+ *   runtime incluye: offlineAllowed, resultsEndpoint, maxDurationSeconds, bundleUrl.
+ *   bundleUrl: URL del bundle de la actividad (null si no configurado; el launcher lo maneja).
  *   CERO PII del menor: sin nombre, alias, edad, sexo, RUT ni dato clínico.
  *   Solo identificadores opacos + config de la actividad (ADR-SDK-02, justificación legal 2.A).
  *
@@ -177,6 +179,7 @@ function buildPayload({ contractVersion, tokenValue, assignment, activity, resul
       offlineAllowed: true,
       resultsEndpoint,
       maxDurationSeconds: 900,
+      bundleUrl: activity.bundleUrl ?? null,
     },
   };
 }
