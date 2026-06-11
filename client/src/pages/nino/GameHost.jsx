@@ -11,9 +11,9 @@
  *   - getContext responde SOLO config+runtime del payload 2.A, jamás de ChildContext.
  *   - sandbox aplicado; event.origin validado en cada mensaje entrante.
  *
- * DEP-1: bundleUrl aún no existe en el modelo Activity ni en el payload 2.A.
- * Mientras no exista, se usa STUB_BUNDLE_URL (ver constante abajo) que apunta
- * al stub de desarrollo en /public/sdk-stub.html.
+ * DEP-1 (resuelta): el backend propaga runtime.bundleUrl en el payload 2.A.
+ * STUB_BUNDLE_URL se usa únicamente como fallback de desarrollo (import.meta.env.DEV)
+ * cuando bundleUrl viene null. En producción, bundleUrl null pasa a fase ERROR.
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -23,13 +23,13 @@ import { EVENT_TYPES, CONTRACT_VERSION, EVENTS_INGEST_CAP } from '@shared/index.
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 /**
- * DEP-1 STUB: URL de bundle de desarrollo.
- * Se reemplaza por runtime.bundleUrl del payload 2.A cuando el backend lo implemente.
+ * Fallback de desarrollo (DEP-1 resuelta).
+ * Solo se usa cuando runtime.bundleUrl es null Y estamos en dev (import.meta.env.DEV).
+ * En producción NUNCA se usa: bundleUrl null en prod deriva a fase ERROR.
  *
  * MEDIO-1: El stub vive en client/dev-stubs/sdk-stub.html (NO en /public) para no
  * quedar en dist/. Vite lo sirve en dev a través del middleware dev-stubs-middleware
  * definido en vite.config.js bajo la ruta /__dev-stubs/sdk-stub.html.
- * En producción esta constante es irrelevante porque bundleUrl siempre viene del backend.
  */
 const STUB_BUNDLE_URL = `${window.location.origin}/__dev-stubs/sdk-stub.html`;
 
@@ -83,21 +83,32 @@ function useGameSession(assignmentId) {
       // sessionToken se queda en payload — NUNCA sale de este scope hacia el iframe.
       setSessionData(payload);
 
-      // DEP-1: usar bundleUrl del payload cuando el backend lo incluya;
-      // mientras tanto, usar el stub local.
-      const url = payload.runtime?.bundleUrl ?? STUB_BUNDLE_URL;
-      setBundleUrl(url);
-
-      // Calcular origen esperado para validación de mensajes
-      try {
-        expectedOriginRef.current = new URL(url).origin;
-      } catch {
-        // URL relativa o malformada → usar origen propio (stub)
+      // DEP-1 (resuelta): resolver bundleUrl con guard prod/dev.
+      //   1. Si el backend envía bundleUrl → usarla siempre.
+      //   2. Si no viene y estamos en dev → fallback al stub local (solo dev).
+      //   3. Si no viene y estamos en prod → pasar a ERROR con mensaje amable.
+      const rawBundleUrl = payload.runtime?.bundleUrl;
+      if (rawBundleUrl) {
+        setBundleUrl(rawBundleUrl);
+        try {
+          expectedOriginRef.current = new URL(rawBundleUrl).origin;
+        } catch {
+          // URL relativa o malformada → usar origen propio
+          expectedOriginRef.current = window.location.origin;
+        }
+        startTimeRef.current = Date.now();
+        setPhase(PHASE.PLAYING);
+      } else if (import.meta.env.DEV) {
+        // Fallback de desarrollo: permite trabajar sin bundle configurado
+        setBundleUrl(STUB_BUNDLE_URL);
         expectedOriginRef.current = window.location.origin;
+        startTimeRef.current = Date.now();
+        setPhase(PHASE.PLAYING);
+      } else {
+        // Producción sin bundle configurado: no montar el iframe
+        setErrorMsg('Este juego todavía no está listo. ¡Vuelve a intentarlo más tarde!');
+        setPhase(PHASE.ERROR);
       }
-
-      startTimeRef.current = Date.now();
-      setPhase(PHASE.PLAYING);
     } catch (err) {
       setErrorMsg(err.message || 'No pudimos iniciar la actividad. Intenta de nuevo.');
       setPhase(PHASE.ERROR);
