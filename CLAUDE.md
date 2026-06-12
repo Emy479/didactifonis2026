@@ -75,7 +75,9 @@ externamente y se suben. La plataforma solo los aloja, asigna y registra sus res
 /server        Node + Express. /models /routes /controllers /middleware
 /server/activities   Ingesta y registro de resultados de juegos EXTERNOS
                      (NO contiene lógica de juego; recibe el contrato de datos)
-/shared        Tipos y constantes compartidas (incl. el contrato de resultados)
+/shared        VACIADO (2026-06-11): el contrato de juego vive en el repo hermano
+               C:\didactifonis-contract (@didactifonis/contract, consumido vía
+               file: link). Ver shared/README.md y docs/plan-sdk-engine-juegos.md.
 /docs          Specs, planes y decisiones de arquitectura (ADR)
                  └ especificacion-funcional.md  ← fuente de verdad funcional
 /referencias   Visuales PNG/JPEG de la plataforma (NO hay archivos Figma)

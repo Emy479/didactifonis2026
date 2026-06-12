@@ -1069,7 +1069,11 @@ del arquitecto aceptada.)
   **Frente B DESBLOQUEADO (2026-06-11):** decisiones operativas a–d de ADR-SDK-05 cerradas por
   Emiliano (ver cierre operativo en §3, bajo ADR-SDK-05). Arranque según plan B-0 (promoción del
   contrato a `didactifonis-contract`) → B-1 (SDK en `didactifonis-engine`, espera smoke manual)
-  → B-2 (validación cruzada). **B-0 en curso.**
+  → B-2 (validación cruzada). **B-0 COMPLETADA (2026-06-11, QA VERDE — `docs/qa-b0-promocion-contrato.md`):**
+  repo `C:\didactifonis-contract` creado (fuente único `index.cjs` + exports map, 5 exports
+  byte-equivalentes; protocolo canónico migrado); plataforma consume `@didactifonis/contract`
+  vía `file:` link (commit 681490f); `/shared` vaciado a README puntero. Pendiente: remote
+  privado en GitHub (`gh` CLI no instalada en la máquina — crear y pushear manualmente).
 - **Objetivo:** librería que el autor del juego importa; abstrae el canal (ADR-SDK-03).
 - **Entregables:** API mínima `getContext()` (lee el payload de arranque 2.A), `submitResults()`
   (valida contra el esquema y envía 2.B), cola offline + reintento idempotente (2.E); tipos

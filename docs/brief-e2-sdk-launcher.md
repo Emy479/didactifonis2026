@@ -216,5 +216,7 @@ recomendación del arquitecto:
 1. ~~Frente A contra un bundle/SDK stub local~~ — **HECHO** (QA verde, `docs/qa-e2-frente-a.md`).
 2. ~~Elevar a Emiliano las 2 decisiones pendientes~~ — **HECHO** (ambas cerradas 2026-06-11).
 3. ~~Resuelto `bundleUrl` → backend lo añade a `Activity`/2.A~~ — **HECHO** (c4050cc + c5d48b2).
-4. Frente B según plan B-0/B-1/B-2 (§B.4). **B-0 en curso.** Pendiente de Emiliano: smoke manual
-   del flujo niño→jugar en dev (recomendado antes de B-1; no bloquea B-0).
+4. Frente B según plan B-0/B-1/B-2 (§B.4). **B-0 COMPLETADA (2026-06-11, QA VERDE —
+   `docs/qa-b0-promocion-contrato.md`; commit plataforma 681490f).** Pendiente de Emiliano:
+   (i) smoke manual del flujo niño→jugar en dev (requisito para arrancar B-1), (ii) remote
+   privado de GitHub para `didactifonis-contract` (`gh` CLI no instalada en la máquina).
