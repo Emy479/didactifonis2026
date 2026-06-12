@@ -8,6 +8,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "seed:demo": "node scripts/seedDemo.js",
+    "seed:smoke-e2": "node scripts/seedSmokeE2.js",
     "migrate:score-fields": "node scripts/migrateScoreFields.js"
   },
   "dependencies": {
