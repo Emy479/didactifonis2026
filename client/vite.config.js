@@ -46,10 +46,11 @@ export default defineConfig({
 
   // MEDIO-2: Acotar server.fs.allow a la ruta mínima necesaria.
   // npm instala @didactifonis/contract como symlink (file:); Vite resuelve al path real.
-  // Solo se permite el checkout hermano — lista mínima.
+  // OJO: `allow` REEMPLAZA el default (la raíz del proyecto), así que la raíz del
+  // cliente debe listarse explícitamente o el dev server responde 403 a todo.
   server: {
     fs: {
-      allow: ['C:/didactifonis-contract'],
+      allow: [__dirname, 'C:/didactifonis-contract'],
     },
   },
 })
