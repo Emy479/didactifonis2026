@@ -1,6 +1,6 @@
 # Brief E2 — SDK JS de juegos + Launcher del niño
 
-**Fecha:** 2026-06-09 (actualizado 2026-06-11)
+**Fecha:** 2026-06-09 (actualizado 2026-06-12 — **E2 COMPLETO: Frentes A y B cerrados**, ver §B.6)
 **Arquitecto:** didactifonis-architect
 **Estado:** E0 y E1 (backend) ACEPTADAS e integradas en `master`. **Frente A (launcher)
 IMPLEMENTADO y VALIDADO por QA (2026-06-11, ver `docs/qa-e2-frente-a.md` — veredicto VERDE).
@@ -201,6 +201,7 @@ recomendación del arquitecto:
    **COMPLETADA 2026-06-12** — ver brief `docs/brief-b1-esqueleto-sdk.md` y cierre en §B.5.
 3. **B-2 — Validación cruzada** (`didactifonis-security` + `didactifonis-qa`): no-fuga de
    credenciales/PII en el SDK y prueba end-to-end SDK real ↔ GameHost.
+   **COMPLETADA 2026-06-12** — ver brief `docs/brief-b2-validacion-cruzada.md` y cierre en §B.6.
 
 ---
 
@@ -246,5 +247,37 @@ recomendación del arquitecto:
 - **Repos:** didactifonis-engine `0aa5bb9` → https://github.com/Emy479/didactifonis-engine
   (privado); didactifonis-contract `65c24da` pusheado (corrige comentario sobre
   optimizeDeps.include).
-- **Sigue: B-2** — SDK real contra GameHost en dev reemplazando el stub (security + qa),
-  y luego juegos-piloto (E3/E5) con recalibración de `EVENTS_INGEST_CAP`.
+- ~~Sigue: B-2~~ — **HECHO, ver §B.6.**
+
+## B.6 — Cierre de B-2 (2026-06-12) — FRENTE B COMPLETADO
+
+- **E2E automatizado VERDE (repetido 3 veces).** Arnés Playwright (`client/e2e/b2-smoke.mjs`,
+  chromium headless) recorre: login API demo-tutor → `/nino/game/:assignmentId` → GameHost emite
+  sesión 2.A → iframe sandboxed carga el bundle de prueba (`didactifonis-engine`
+  `examples/test-game-b2/`, usa el **UMD real** de `@didactifonis/sdk` v0.1.0, cross-origin desde
+  `127.0.0.1:8788`) → `init({hostOrigin})` → `getContext` con reintento → telemetría → `submitResults`
+  → POST del host → pantalla de éxito. 5/5 aserciones de no-fuga del bundle PASS, 0 FAIL.
+- **Contraprueba Mongo VERDE (21/21,** `server/scripts/verifyB2Result.js`**):** `scorePercent 80`
+  derivado server-side, `passed true`, 8 events persistidos incluyendo `x_b2_custom` y
+  `evento_fuera_catalogo` **conservados** (Q-EVT-3) y `reportEvent(null)` descartado; sin campo
+  `sessionToken` en el doc; token de sesión en estado `used`. Dato cap: 8 eventos/sesión sintética
+  (recalibración real de `EVENTS_INGEST_CAP` queda para E3/E5).
+- **contextResponse real verificado:** solo `config` (level, passThreshold, locale, params,
+  audioInstructionsUrl, tutorInstructionsText) + `runtime` (maxDurationSeconds, contractVersion).
+  Sin token/JWT/PII/displayName/resultsEndpoint/bundleUrl. Storage del host limpio (solo
+  auth_token/auth_user del login del tutor); URL sin token.
+- **Auditoría security del flujo integrado: APTO CON OBSERVACIONES.** 7 hallazgos (4 MEDIO,
+  3 BAJO), ninguno bloqueante. Remediados en `600904e`: **H-4** (el arnés inyectaba el JWT en
+  todos los frames vía addInitScript; ahora solo frame principal) y **H-6** (GameHost warneaba
+  eventos `x_` que el contrato declara silenciosos). Aceptados/deuda: H-2 targetOrigin `*` en
+  sandbox (riesgo residual ya documentado §4.1, payload sin secretos verificado en runtime);
+  H-5 credenciales demo en el arnés (ya públicas en los seeds del repo privado); H-1/H-3/H-7
+  (serve-static dev-only en 127.0.0.1: sin CORS/XFO, sirve raíz del repo, expone sourcemaps) →
+  deuda registrada para la futura decisión de **hosting de bundles de producción**.
+- **Seguimiento explícito de seguridad:** `allow-same-origin` NUNCA se añade al sandbox del
+  iframe sin nueva revisión de security (condición que mantiene acotados H-2 y H-4).
+- **Commits:** plataforma `65ff9cf` (seed B-2) + `8019878` (arnés + contraprueba) + `600904e`
+  (remediaciones H-4/H-6); engine `82d6cb5` (bundle de prueba + serve-static). Tooling nuevo:
+  Playwright como devDependency del cliente (arnés reutilizable en E3/E5).
+- **Sigue:** E3/E5 — juegos-piloto reales con el Engine (autoría Phaser/Rive) y recalibración
+  de `EVENTS_INGEST_CAP` con datos reales.

@@ -1104,11 +1104,15 @@ del arquitecto aceptada.)
   (revisión de integración).
 
 **Orden y paralelismo:** **E0 y E1 COMPLETADAS (2026-06-04). E2 Frente A (launcher) COMPLETADO y
-VALIDADO (2026-06-11). E2 Frente B EN CURSO:** ~~B-0~~ COMPLETADA (2026-06-11, QA verde) →
-~~B-1~~ **COMPLETADA (2026-06-12)**: smoke manual de Emiliano PASADO; `@didactifonis/sdk` v0.1.0
-en repo `didactifonis-engine` (https://github.com/Emy479/didactifonis-engine, privado), protocolo
-v1.1, auditoría security APTO (hallazgos M-1/M-2/M-3/B-2 remediados en `0aa5bb9`) + QA estática
-y smoke UMD verdes (detalle en brief E2 §B.5) → **SIGUE: B-2** (SDK real ↔ GameHost en dev).
+VALIDADO (2026-06-11). E2 Frente B COMPLETADO (2026-06-12):** ~~B-0~~ COMPLETADA (2026-06-11, QA
+verde) → ~~B-1~~ COMPLETADA (2026-06-12): smoke manual de Emiliano PASADO; `@didactifonis/sdk`
+v0.1.0 en repo `didactifonis-engine` (https://github.com/Emy479/didactifonis-engine, privado),
+protocolo v1.1, auditoría security APTO (hallazgos M-1/M-2/M-3/B-2 remediados en `0aa5bb9`) + QA
+estática y smoke UMD verdes (detalle en brief E2 §B.5) → ~~B-2~~ **COMPLETADA (2026-06-12)**: E2E
+automatizado Playwright SDK real ↔ GameHost VERDE (5/5 aserciones de no-fuga) + contraprueba Mongo
+VERDE (21/21) + auditoría security del flujo integrado APTO CON OBSERVACIONES (H-4/H-6 remediados;
+resto deuda registrada) — ver `docs/brief-b2-validacion-cruzada.md` §6 y brief E2 §B.6.
+**SIGUE: E3** (juegos-piloto con el Engine; requiere arrancar autoría Phaser/Rive del Engine).
 E3 requiere ADR-SDK-04. E4 puede ir en paralelo con E3 (comparten esquema de manifest). E5 al
 final. **Regla de oro: una funcionalidad a la vez; no abrir frentes que se pisen.**
 
