@@ -1104,8 +1104,11 @@ del arquitecto aceptada.)
   (revisión de integración).
 
 **Orden y paralelismo:** **E0 y E1 COMPLETADAS (2026-06-04). E2 Frente A (launcher) COMPLETADO y
-VALIDADO (2026-06-11). E2 Frente B DESBLOQUEADO y EN CURSO (2026-06-11):** B-0 (promoción del
-contrato) → B-1 (SDK en repo Engine, tras smoke manual de Emiliano) → B-2 (validación cruzada).
+VALIDADO (2026-06-11). E2 Frente B EN CURSO:** ~~B-0~~ COMPLETADA (2026-06-11, QA verde) →
+~~B-1~~ **COMPLETADA (2026-06-12)**: smoke manual de Emiliano PASADO; `@didactifonis/sdk` v0.1.0
+en repo `didactifonis-engine` (https://github.com/Emy479/didactifonis-engine, privado), protocolo
+v1.1, auditoría security APTO (hallazgos M-1/M-2/M-3/B-2 remediados en `0aa5bb9`) + QA estática
+y smoke UMD verdes (detalle en brief E2 §B.5) → **SIGUE: B-2** (SDK real ↔ GameHost en dev).
 E3 requiere ADR-SDK-04. E4 puede ir en paralelo con E3 (comparten esquema de manifest). E5 al
 final. **Regla de oro: una funcionalidad a la vez; no abrir frentes que se pisen.**
 

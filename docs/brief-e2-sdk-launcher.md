@@ -198,7 +198,7 @@ recomendación del arquitecto:
    la plataforma (server + client) pasa a consumir `@didactifonis/contract` vía link local.
 2. **B-1 — Esqueleto del SDK** (`didactifonis-frontend`): repo `didactifonis-engine` con el SDK
    (`getContext`/`reportEvent`/`submitResults`) espejando `postmessage-protocol.md`.
-   **No arranca hasta que Emiliano complete el smoke manual del flujo niño→jugar.**
+   **COMPLETADA 2026-06-12** — ver brief `docs/brief-b1-esqueleto-sdk.md` y cierre en §B.5.
 3. **B-2 — Validación cruzada** (`didactifonis-security` + `didactifonis-qa`): no-fuga de
    credenciales/PII en el SDK y prueba end-to-end SDK real ↔ GameHost.
 
@@ -217,6 +217,34 @@ recomendación del arquitecto:
 2. ~~Elevar a Emiliano las 2 decisiones pendientes~~ — **HECHO** (ambas cerradas 2026-06-11).
 3. ~~Resuelto `bundleUrl` → backend lo añade a `Activity`/2.A~~ — **HECHO** (c4050cc + c5d48b2).
 4. Frente B según plan B-0/B-1/B-2 (§B.4). **B-0 COMPLETADA (2026-06-11, QA VERDE —
-   `docs/qa-b0-promocion-contrato.md`; commit plataforma 681490f).** Pendiente de Emiliano:
-   (i) smoke manual del flujo niño→jugar en dev (requisito para arrancar B-1), (ii) remote
-   privado de GitHub para `didactifonis-contract` (`gh` CLI no instalada en la máquina).
+   `docs/qa-b0-promocion-contrato.md`; commit plataforma 681490f).** ~~Pendientes de Emiliano~~
+   **AMBOS RESUELTOS 2026-06-11/12**: gh CLI instalada y autenticada (Emy479); los 3 repos
+   tienen remote privado en GitHub. Nota: B-0 dejó 2 bugs solo-dev corregidos post-QA
+   (`533af16` fs.allow reemplaza el default; `c7e6158` optimizeDeps.include para paquete
+   `file:` CJS) — lección: QA de tooling debe ejercitar `vite dev` además del build.
+
+## B.5 — Cierre de B-1 (2026-06-12)
+
+- **Smoke manual del flujo niño→jugar: PASADO por Emiliano** (tutor → modo niño →
+  "¡Jugar ahora!" → stub → resultado en Progreso: 1 actividad, racha 1, 100% participación,
+  2 logros). Datos vía `npm run seed:smoke-e2` (`server/scripts/seedSmokeE2.js`, d6ea21c).
+- **SDK construido** en `didactifonis-engine` (workspace npm): paquete `@didactifonis/sdk`
+  v0.1.0, API `init`/`getContext`/`isReady`/`reportEvent`/`submitResults` + re-export de
+  `EVENT_TYPES`/`CONTRACT_VERSION`/`EVENTS_INGEST_CAP`; protocolo postMessage v1.1; contrato
+  inlineado en el bundle (ES + UMD); demo mínima UMD sin dev server.
+- **Auditoría de seguridad: APTO CON OBSERVACIONES.** Verificado: cero credenciales
+  (sessionToken/JWT ausentes de toda rama), cero red/storage (única E/S = postMessage),
+  cero PII, validación §4.4, sin paused/resumed por visibilidad. Hallazgos remediados en
+  `0aa5bb9`: M-2 `debug` default → false; M-3 metadata de submitResults limitada a 4 KB;
+  B-2 warning si getContext corre sin hostOrigin; M-1 `files` en package.json excluye
+  sourcemaps del artefacto npm. B-1(targetOrigin `*` en sandbox) queda documentado como
+  riesgo residual aceptado del protocolo §4.1.
+- **QA: conformidad estática verde** (protocolo v1.1, Q-EVT-3, cap, idempotencia, higiene
+  del repo) + build reproducible verificado (vite lib, ES 4.69 kB / UMD 3.81 kB) + smoke
+  UMD en Node (`npm run test:smoke` en packages/sdk): exports, getContext↔contextResponse,
+  descarte de source ajeno, Q-EVT-3 (3 enviados / 2 descartados), metadata 4 KB, idempotencia.
+- **Repos:** didactifonis-engine `0aa5bb9` → https://github.com/Emy479/didactifonis-engine
+  (privado); didactifonis-contract `65c24da` pusheado (corrige comentario sobre
+  optimizeDeps.include).
+- **Sigue: B-2** — SDK real contra GameHost en dev reemplazando el stub (security + qa),
+  y luego juegos-piloto (E3/E5) con recalibración de `EVENTS_INGEST_CAP`.
