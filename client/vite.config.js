@@ -44,21 +44,12 @@ export default defineConfig({
     },
   ],
 
-  resolve: {
-    alias: {
-      // Permite importar desde '/shared' sin salir del root de Vite.
-      // Usado por GameHost.jsx para consumir EVENT_TYPES, CONTRACT_VERSION
-      // y EVENTS_INGEST_CAP sin duplicar los literales (ADR-SDK-05, DEP-3).
-      '@shared': path.resolve(__dirname, '../shared'),
-    },
-  },
-
   // MEDIO-2: Acotar server.fs.allow a la ruta mínima necesaria.
-  // El único módulo fuera de /client que se importa es @shared (alias arriba).
-  // Antes era ['..'] (todo el monorepo) — reducido a solo el directorio /shared.
+  // npm instala @didactifonis/contract como symlink (file:); Vite resuelve al path real.
+  // Solo se permite el checkout hermano — lista mínima.
   server: {
     fs: {
-      allow: [path.resolve(__dirname, '../shared')],
+      allow: ['C:/didactifonis-contract'],
     },
   },
 })

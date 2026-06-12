@@ -11,7 +11,7 @@
  *   - Validación estricta del token: existencia, no expirado, ids coincidentes.
  *   - Idempotencia atómica por token: si el token ya está 'used', respuesta 200 idempotente.
  *   - Score derivado server-side; cualquier scorePercent/passed del juego es ignorado.
- *   - Eventos: filtrado de malformados + cap defensivo desde shared/index.cjs.
+ *   - Eventos: filtrado de malformados + cap defensivo desde @didactifonis/contract.
  *
  * Minimización PII (Ley 21.719 — D4 aprobado 2026-06-09):
  *   `childId` NO se exige ni se usa desde el body. Se deriva exclusivamente de
@@ -20,7 +20,7 @@
  *   Esto evita que el identificador del menor viaje en el payload del juego externo.
  *
  * Arrastre E0: consume EVENTS_INGEST_CAP, EVENT_TYPES y CONTRACT_VERSION desde
- * shared/index.cjs — sin literales duplicados (ADR-SDK-05).
+ * @didactifonis/contract — sin literales duplicados (ADR-SDK-05).
  *
  * ORDEN DE OPERACIONES (garantía de correctitud):
  *   1. Validar presencia de ids y sessionToken (400/401 sin tocar DB).
@@ -46,9 +46,9 @@ const ActivityResult = require('./ActivityResult');
 const { ActivitySessionToken } = require('./ActivitySessionToken');
 const Assignment = require('../models/Assignment');
 const Activity = require('../models/Activity');
-// Arrastre E0: consumir constantes desde la fuente única de verdad (shared/index.cjs).
+// Arrastre E0: consumir constantes desde la fuente única de verdad (@didactifonis/contract).
 // Prohibido re-declarar EVENTS_INGEST_CAP o EVENT_TYPES como literales locales.
-const { EVENTS_INGEST_CAP, EVENT_TYPES, CONTRACT_VERSION } = require('../../shared/index.cjs');
+const { EVENTS_INGEST_CAP, EVENT_TYPES, CONTRACT_VERSION } = require('@didactifonis/contract');
 
 const router = Router();
 

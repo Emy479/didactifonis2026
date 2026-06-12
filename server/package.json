@@ -11,6 +11,7 @@
     "migrate:score-fields": "node scripts/migrateScoreFields.js"
   },
   "dependencies": {
+    "@didactifonis/contract": "file:../../didactifonis-contract",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

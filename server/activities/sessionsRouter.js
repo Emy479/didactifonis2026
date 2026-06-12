@@ -12,7 +12,7 @@
  *   CERO PII del menor: sin nombre, alias, edad, sexo, RUT ni dato clínico.
  *   Solo identificadores opacos + config de la actividad (ADR-SDK-02, justificación legal 2.A).
  *
- * Arrastre E0: consume CONTRACT_VERSION desde shared/index.cjs (sin literal duplicado).
+ * Arrastre E0: consume CONTRACT_VERSION desde @didactifonis/contract (sin literal duplicado).
  */
 
 const crypto = require('crypto'); // MEDIO-1: requerido para crypto.randomUUID()
@@ -23,7 +23,7 @@ const Assignment = require('../models/Assignment');
 const Activity = require('../models/Activity');
 const Child = require('../models/Child');
 const { ActivitySessionToken, SESSION_TOKEN_TTL_SECONDS } = require('./ActivitySessionToken');
-const { CONTRACT_VERSION, EVENTS_INGEST_CAP, EVENT_TYPES } = require('../../shared/index.cjs');
+const { CONTRACT_VERSION, EVENTS_INGEST_CAP, EVENT_TYPES } = require('@didactifonis/contract');
 
 const router = Router();
 
