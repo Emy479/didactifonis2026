@@ -1,13 +1,27 @@
 # Plan de trabajo — SDK / Engine standalone de juegos
 
-> **Estado:** v0.7 — 6 ADR resueltas por Emiliano (2026-05-31), incl. ADR-SDK-06 (modelo de
+> **Estado:** v0.8 — 6 ADR resueltas por Emiliano (2026-05-31), incl. ADR-SDK-06 (modelo de
 > score). Visión del Engine (Phaser híbrido) incorporada. Campo `events` del contrato 2.B
 > DEFINIDO (§2.B.1 y §2.B.2) y sus 4 decisiones abiertas (Q-EVT-1..4) **RESUELTAS** (§3.2).
 > **El contrato de juego (2.A + 2.B) queda COMPLETAMENTE cerrado.**
-> **Fase E0 y Fase E1 COMPLETADAS y aceptadas (2026-06-04). Próximo paso: E2 (SDK JS / launcher).**
+> **Fase E0 y Fase E1 COMPLETADAS (2026-06-04). E2 Frente A COMPLETADO y VALIDADO (2026-06-11).**
+> **E2 Frente B DESBLOQUEADO (2026-06-11): decisiones operativas a–d de ADR-SDK-05 cerradas.**
 > **Juegos-piloto del MVP CONFIRMADOS por Emiliano (2026-06-04): §8.6.** Documento vivo.
 > **Autor:** didactifonis-architect. **Dueño del contrato:** Emiliano (ver D4).
-> **Fecha:** 2026-05-31 (última actualización: 2026-06-04, cierre E1).
+> **Fecha:** 2026-05-31 (última actualización: 2026-06-11, arranque Frente B).
+>
+> **Cambios v0.8 (2026-06-11):** **Frente B DESBLOQUEADO.** Emiliano cerró las 4 decisiones
+> operativas pendientes de ADR-SDK-05, todas con la recomendación del arquitecto:
+> **(a)** hosting en GitHub privado, misma cuenta, repos `didactifonis-contract` y
+> `didactifonis-engine`; **(b)** scope npm `@didactifonis/contract` SIN publicar aún — consumo
+> por link/workspace local, registry se decide al estabilizar y pinear ("link ahora, pin
+> después"); **(c)** el SDK vive DENTRO del repo Engine (una sola pieza: el SDK es el
+> runtime-bridge del Engine); **(d)** checkouts locales hermanos: `C:\didactifonis-contract` y
+> `C:\didactifonis-engine` junto a `C:\Didactifonis2026` (la plataforma no se mueve). Plan de
+> arranque acordado: **B-0** promoción del contrato (backend + QA) → **B-1** esqueleto del SDK
+> en el repo Engine (frontend; espera el smoke manual de Emiliano del flujo niño→jugar) →
+> **B-2** validación cruzada (security + QA). Detalle en `docs/brief-e2-sdk-launcher.md` §B.
+> Estado de E2 actualizado en §4.
 >
 > **Cambios v0.7 (2026-06-04):** **Fase E1 cerrada y aceptada.** Implementada por
 > `didactifonis-backend`, auditada por `didactifonis-security` (9 hallazgos remediados) y
@@ -702,6 +716,25 @@ es E2 **Frente A (launcher del niño), que vive en este repo** (`/client`). Crea
 **Engine** — e, idealmente, el repo **neutral del contrato** — al arrancar **Frente B (el SDK)**.
 El arquitecto te avisará en ese punto exacto.
 
+#### Cierre operativo de ADR-SDK-05 (Emiliano, 2026-06-11) — Frente B DESBLOQUEADO
+
+Ese punto exacto llegó. Con el Frente A validado (QA verde 2026-06-11), Emiliano cerró las 4
+decisiones operativas, todas con la recomendación del arquitecto:
+
+| # | Decisión | Resolución |
+| :-- | :-- | :-- |
+| (a) | Hosting de los repos | **GitHub privado**, misma cuenta del proyecto: `didactifonis-contract` y `didactifonis-engine` |
+| (b) | Publicación npm | Scope **`@didactifonis/contract`**, **SIN publicar aún**; consumo por **link/workspace local**; el registry se decide al estabilizar y pinear ("link ahora, pin después", punto 3 del refinamiento) |
+| (c) | Dónde vive el SDK | **Dentro del repo Engine** — una sola pieza; el SDK es el runtime-bridge del Engine (la topología sigue siendo de 3 piezas: contrato / plataforma / Engine+SDK) |
+| (d) | Checkouts locales | Hermanos del repo actual: `C:\didactifonis-contract` y `C:\didactifonis-engine` junto a `C:\Didactifonis2026`; la plataforma NO se mueve |
+
+**Plan de arranque del Frente B:** B-0 (promoción del contrato, `didactifonis-backend` + revisión
+`didactifonis-qa`) → B-1 (esqueleto del SDK en el repo Engine, `didactifonis-frontend`; condicionado
+al smoke manual de Emiliano del flujo niño→jugar) → B-2 (validación cruzada, `didactifonis-security`
++ `didactifonis-qa`). B-0 incluye saldar la deuda del punto 5 (fuente único + `exports` map ESM/CJS)
+y migrar el canónico `docs/postmessage-protocol.md` al repo del contrato (puntero en la plataforma).
+Detalle en `docs/brief-e2-sdk-launcher.md` §B.4 y `docs/brief-b0-promocion-contrato.md`.
+
 ### ADR-SDK-06 — Modelo de score (normalización) — RESUELTA (2026-05-31)
 **Contexto:** §1 dejó pendiente el rango del `score`. El modelo Mongo lo acotaba `0–100`; el
 contrato 2.B traía `score: 850`. Emiliano resolvió: cada juego tiene su propia escala interna
@@ -1033,8 +1066,10 @@ del arquitecto aceptada.)
   `runtime.bundleUrl` en 2.A). QA en verde: `docs/qa-e2-frente-a.md` (runtime backend 7/7 +
   inspección frontend; observación: evento `abandoned` no persiste server-side — limitación de
   diseño aceptada, seguimiento en Frente B/E3; smoke manual en browser pendiente del usuario).
-  **Frente B (el SDK propiamente tal) sigue PENDIENTE**, bloqueado por la decisión operativa de
-  ADR-SDK-05 (repo/publicación/consumo de `/shared`).
+  **Frente B DESBLOQUEADO (2026-06-11):** decisiones operativas a–d de ADR-SDK-05 cerradas por
+  Emiliano (ver cierre operativo en §3, bajo ADR-SDK-05). Arranque según plan B-0 (promoción del
+  contrato a `didactifonis-contract`) → B-1 (SDK en `didactifonis-engine`, espera smoke manual)
+  → B-2 (validación cruzada). **B-0 en curso.**
 - **Objetivo:** librería que el autor del juego importa; abstrae el canal (ADR-SDK-03).
 - **Entregables:** API mínima `getContext()` (lee el payload de arranque 2.A), `submitResults()`
   (valida contra el esquema y envía 2.B), cola offline + reintento idempotente (2.E); tipos
@@ -1065,8 +1100,8 @@ del arquitecto aceptada.)
   (revisión de integración).
 
 **Orden y paralelismo:** **E0 y E1 COMPLETADAS (2026-06-04). E2 Frente A (launcher) COMPLETADO y
-VALIDADO (2026-06-11).** Próximo frente: **E2 Frente B** (SDK JS para autores de juegos), que
-requiere cerrar la decisión operativa de ADR-SDK-05 (repo, publicación, consumo de `/shared`).
+VALIDADO (2026-06-11). E2 Frente B DESBLOQUEADO y EN CURSO (2026-06-11):** B-0 (promoción del
+contrato) → B-1 (SDK en repo Engine, tras smoke manual de Emiliano) → B-2 (validación cruzada).
 E3 requiere ADR-SDK-04. E4 puede ir en paralelo con E3 (comparten esquema de manifest). E5 al
 final. **Regla de oro: una funcionalidad a la vez; no abrir frentes que se pisen.**
 

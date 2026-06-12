@@ -4,8 +4,9 @@
 **Arquitecto:** didactifonis-architect
 **Estado:** E0 y E1 (backend) ACEPTADAS e integradas en `master`. **Frente A (launcher)
 IMPLEMENTADO y VALIDADO por QA (2026-06-11, ver `docs/qa-e2-frente-a.md` — veredicto VERDE).
-DEP-1 RESUELTA.** Frente B (SDK) sigue pendiente de ADR-SDK-05 operativo.
-**Plan base:** `docs/plan-sdk-engine-juegos.md` (v0.7). Contrato 2.A + 2.B CERRADO.
+DEP-1 RESUELTA. Frente B (SDK) DESBLOQUEADO (2026-06-11): las 4 decisiones operativas de
+ADR-SDK-05 fueron cerradas por Emiliano (ver §B.2). Arranque en curso con plan B-0/B-1/B-2.**
+**Plan base:** `docs/plan-sdk-engine-juegos.md` (v0.8). Contrato 2.A + 2.B CERRADO.
 
 ---
 
@@ -30,7 +31,8 @@ E2 cierra ese hueco con DOS piezas que se conectan por iframe + postMessage:
    postMessage, y hace el POST a `/api/activities/results`. **El juego nunca ve el token ni el JWT.**
 2. **SDK JS** — la librería que el juego externo importa (`getContext` / `reportEvent` /
    `submitResults`). Corre DENTRO del iframe del juego. **No tiene credenciales**: habla con el
-   launcher por postMessage. **Su repo está BLOQUEADO por ADR-SDK-05 (ver §4).**
+   launcher por postMessage. **Vive en el repo Engine (`didactifonis-engine`) — decisión cerrada
+   2026-06-11, ver §B.2.**
 
 > Frontera de confianza E2 (innegociable): el **host/launcher** es código propio y confiable y
 > es el ÚNICO que toca `sessionToken`, JWT y la red de la plataforma. El **juego + SDK** son
@@ -87,7 +89,7 @@ acceda jamás a credenciales ni a datos del menor.
 
 - No se construye ningún juego (los juegos son externos — CLAUDE.md §3).
 - No se toca `progress.js` ni la derivación de score (es server-side, E1, intocable).
-- No se publica el SDK como paquete (eso es el Frente B, bloqueado).
+- No se publica el SDK como paquete (eso es el Frente B).
 - No se modifican `sessionsRouter.js` ni `resultsRouter.js` salvo que la revisión de seguridad
   identifique un gap del contrato; en ese caso se eleva al arquitecto, no se parchea desde el cliente.
 - Sin neones/glows (convenciones §7). La gamificación del host del niño usa los tokens de
@@ -147,11 +149,14 @@ acceda jamás a credenciales ni a datos del menor.
 
 ---
 
-## FRENTE B — SDK JS (repo a definir) — **BLOQUEADO**
+## FRENTE B — SDK JS (repo `didactifonis-engine`) — **DESBLOQUEADO (2026-06-11)**
 
-**Estado:** BLOQUEADO por **ADR-SDK-05** (repo del SDK separado vs este repo). Decisión de Emiliano pendiente.
+**Estado:** DESBLOQUEADO. La decisión de fondo de ADR-SDK-05 estaba resuelta desde 2026-05-31
+(repo separado + contrato como paquete) y su refinamiento operativo desde 2026-06-09 (ver
+`docs/plan-sdk-engine-juegos.md`, refinamiento de ADR-SDK-05). El 2026-06-11 Emiliano cerró las
+4 decisiones operativas restantes (§B.2). Arranque en curso según plan B-0/B-1/B-2 (§B.4).
 
-### B.1 Objetivo (cuando se desbloquee)
+### B.1 Objetivo
 
 Librería JS que el juego externo importa y que expone tres llamadas sobre iframe+postMessage:
 - `getContext()` → devuelve `config`+`runtime` (lo que el host le entrega; sin credenciales).
@@ -161,37 +166,55 @@ Librería JS que el juego externo importa y que expone tres llamadas sobre ifram
 El SDK **nunca** ve `sessionToken` ni JWT (ADR-SDK-03). Solo habla con el host por postMessage,
 espejando el protocolo definido en el Frente A (DEP-2).
 
-### B.2 Qué lo bloquea
+### B.2 Decisiones operativas CERRADAS (Emiliano, 2026-06-11)
 
-- **ADR-SDK-05 dice** "repo separado + contrato como paquete npm versionado en `/shared`". Pero la
-  decisión operativa concreta sigue abierta: ¿el SDK vive en un repo nuevo? ¿se publica como paquete
-  npm? ¿cómo consume `/shared` (submódulo, paquete publicado, copia versionada)? Sin eso, no se puede
-  arrancar el frente B sin riesgo de rehacer el empaquetado.
-- **Recomendación del arquitecto:** desarrollar primero el Frente A contra un **SDK stub** dentro de
-  este repo (solo para validar el protocolo end-to-end). Eso permite avanzar el launcher SIN tomar
-  todavía la decisión de repo. Cuando Emiliano resuelva ADR-SDK-05, se extrae el SDK real al repo
-  elegido reutilizando el protocolo ya validado.
+Las 4 cuestiones que mantenían el Frente B en espera quedaron resueltas, todas con la
+recomendación del arquitecto:
 
-### B.3 Criterios de aceptación (preliminares, para cuando se desbloquee)
+- **(a) Hosting:** repos **privados en GitHub**, misma cuenta del proyecto. Nombres:
+  `didactifonis-contract` y `didactifonis-engine`.
+- **(b) npm / consumo del contrato:** paquete con scope **`@didactifonis/contract`**, **SIN
+  publicar en ningún registry todavía**. Se consume por **link/workspace local** mientras el
+  contrato se mueve; el registry se decide al estabilizar y pinear ("link ahora, pin después",
+  conforme al refinamiento de ADR-SDK-05).
+- **(c) Dónde vive el SDK:** **dentro del repo Engine** (`didactifonis-engine`), como una sola
+  pieza: el SDK es el runtime-bridge del Engine, no un tercer repo.
+- **(d) Checkouts locales:** hermanos del repo actual — `C:\didactifonis-contract` y
+  `C:\didactifonis-engine` junto a `C:\Didactifonis2026`. El repo de la plataforma NO se mueve.
+
+### B.3 Criterios de aceptación
 
 - [ ] El SDK no contiene ninguna credencial ni hace fetch a la plataforma directamente.
 - [ ] `getContext`/`reportEvent`/`submitResults` funcionan sobre el protocolo postMessage del Frente A.
-- [ ] `reportEvent` valida `type` contra `EVENT_TYPES` de `/shared` (warning en dev, conserva custom).
-- [ ] El contrato vive como fuente única en `/shared` (no duplicado entre repos).
+- [ ] `reportEvent` valida `type` contra `EVENT_TYPES` del contrato (warning en dev, conserva custom).
+- [ ] El contrato vive como fuente única en `@didactifonis/contract` (no duplicado entre repos).
+
+### B.4 Plan de arranque del Frente B (acordado 2026-06-11)
+
+1. **B-0 — Promoción del contrato** (`didactifonis-backend`, revisión `didactifonis-qa`):
+   crear `didactifonis-contract` con el paquete `@didactifonis/contract` (fuente ÚNICO +
+   `exports` map ESM/CJS — salda la deuda de los dos archivos espejo sincronizados a mano);
+   migrar allí el protocolo canónico `docs/postmessage-protocol.md` (puntero en la plataforma);
+   la plataforma (server + client) pasa a consumir `@didactifonis/contract` vía link local.
+2. **B-1 — Esqueleto del SDK** (`didactifonis-frontend`): repo `didactifonis-engine` con el SDK
+   (`getContext`/`reportEvent`/`submitResults`) espejando `postmessage-protocol.md`.
+   **No arranca hasta que Emiliano complete el smoke manual del flujo niño→jugar.**
+3. **B-2 — Validación cruzada** (`didactifonis-security` + `didactifonis-qa`): no-fuga de
+   credenciales/PII en el SDK y prueba end-to-end SDK real ↔ GameHost.
 
 ---
 
-## Resumen de decisiones pendientes (a elevar a Emiliano)
+## Resumen de decisiones (histórico)
 
-1. **ADR-SDK-05 (dónde vive el SDK):** repo separado vs este repo; cómo se publica; cómo consume
-   `/shared`. **Bloquea el Frente B.** No bloquea el Frente A si se usa un SDK stub.
+1. **ADR-SDK-05 (dónde vive el SDK):** ~~repo separado vs este repo; cómo se publica; cómo
+   consume `/shared`~~ — **CERRADA 2026-06-11** (las 4 decisiones operativas a–d en §B.2).
 2. **`bundleUrl` (DEP-1):** ~~¿se añade a `Activity` + payload 2.A?~~ **RESUELTA 2026-06-11**
    (commits c4050cc + c5d48b2; validación QA en `docs/qa-e2-frente-a.md`).
 
-## Secuenciación recomendada
+## Secuenciación (estado 2026-06-11)
 
-1. Frente A contra un **bundle/SDK stub local** → valida el protocolo postMessage end-to-end y el
-   flujo arranque→juego→resultados, con la revisión de seguridad de no-fuga de credenciales/PII.
-2. En paralelo, elevar a Emiliano las 2 decisiones pendientes (ADR-SDK-05 y `bundleUrl`).
-3. Resuelto `bundleUrl` → backend lo añade a `Activity`/2.A → integración del bundle real.
-4. Resuelto ADR-SDK-05 → extraer el SDK real al repo elegido reutilizando el protocolo validado.
+1. ~~Frente A contra un bundle/SDK stub local~~ — **HECHO** (QA verde, `docs/qa-e2-frente-a.md`).
+2. ~~Elevar a Emiliano las 2 decisiones pendientes~~ — **HECHO** (ambas cerradas 2026-06-11).
+3. ~~Resuelto `bundleUrl` → backend lo añade a `Activity`/2.A~~ — **HECHO** (c4050cc + c5d48b2).
+4. Frente B según plan B-0/B-1/B-2 (§B.4). **B-0 en curso.** Pendiente de Emiliano: smoke manual
+   del flujo niño→jugar en dev (recomendado antes de B-1; no bloquea B-0).
