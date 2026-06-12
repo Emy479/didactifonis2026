@@ -81,9 +81,12 @@ async function main() {
   const context = await browser.newContext();
 
   // Sembrar localStorage ANTES de navegar (addInitScript se ejecuta antes de cada page load)
+  // H-4 auditoría B-2: solo actuar en el frame principal para no filtrar JWT al iframe sandboxed.
   await context.addInitScript(({ t, u }) => {
-    localStorage.setItem('auth_token', t);
-    localStorage.setItem('auth_user', JSON.stringify(u));
+    if (window === window.top) {
+      localStorage.setItem('auth_token', t);
+      localStorage.setItem('auth_user', JSON.stringify(u));
+    }
   }, { t: token, u: user });
 
   const page = await context.newPage();

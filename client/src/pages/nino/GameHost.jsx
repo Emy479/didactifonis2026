@@ -187,8 +187,8 @@ function useGameSession(assignmentId) {
       return;
     }
 
-    // Validar contra catálogo (Q-EVT-3): warning pero se CONSERVA
-    if (!Object.values(EVENT_TYPES).includes(eventType)) {
+    // Validar contra catálogo (Q-EVT-3): warning pero se CONSERVA; x_ son silenciosos por contrato.
+    if (!Object.values(EVENT_TYPES).includes(eventType) && !eventType.startsWith('x_')) {
       if (import.meta.env.DEV) {
         console.warn(`[GameHost] tipo de evento fuera de catálogo: "${eventType}" (custom — conservado)`);
       }
