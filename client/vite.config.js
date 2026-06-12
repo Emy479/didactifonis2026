@@ -53,4 +53,11 @@ export default defineConfig({
       allow: [__dirname, 'C:/didactifonis-contract'],
     },
   },
+
+  // El contrato es CJS y está enlazado vía file: — Vite excluye los paquetes
+  // enlazados del pre-bundling por defecto, así que sin esto el navegador
+  // recibe el CJS crudo (`module is not defined`) y la app muere en blanco.
+  optimizeDeps: {
+    include: ['@didactifonis/contract'],
+  },
 })
