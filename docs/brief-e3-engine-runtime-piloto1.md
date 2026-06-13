@@ -190,10 +190,33 @@ se necesita recién para E4/publicación real.
 
 - [x] H1 — runtime + plantilla + drag&drop (`didactifonis-frontend`) — **COMPLETO 2026-06-12**
 - [x] Revisión H1 (arquitecto) + validación GameHost — **VERDE QA + APTO-CON-OBS security**
-- [ ] H2 — La Casa Mágica (`didactifonis-frontend`) + QA E2E + security bundle ← **SIGUE**
-- [ ] Recalibración `EVENTS_INGEST_CAP` con datos reales (arquitecto propone, Emiliano aprueba)
-- [ ] H3 — export/manifest/validador (`didactifonis-frontend` + revisión de conformidad del arquitecto)
+- [x] H2 — La Casa Mágica (`didactifonis-frontend`) + QA E2E + security bundle — **COMPLETO 2026-06-13**
+- [x] H2-A extensiones genéricas (observación/audio/altavoz opt-in) + H2-B juego — **APROBADO arquitecto**
+- [x] C: QA E2E `e3-casa-magica.mjs` + contraprueba Mongo — **VERDE 12/12**
+- [x] D: security del bundle — **APTO CON OBSERVACIONES** (sin ALTO nuevo; BAJO cierran en H3)
+- [x] Recalibración `EVENTS_INGEST_CAP`: 22 nominal / ~32 peor caso → **NO recalibrar (margen ~6x con 200)**
+- [ ] H3 — export/manifest/validador (`didactifonis-frontend` + revisión de conformidad del arquitecto) ← **SIGUE**
 - [ ] D-E3-1..4 resueltas por Emiliano
+
+### Cierre de H2 (2026-06-13)
+
+**Commits:** engine `26ae47f` (H2-A+H2-B en un commit). Plataforma: arnés QA
+`client/e2e/e3-casa-magica.mjs` SIN commitear aún (pendiente Emiliano).
+
+**Validación E2E (GameHost real):** resultado en Mongo VERDE 12/12 — `scorePercent` 100 derivado
+server-side, `passed` boolean, `maxScore:20`, `attemptCount:10`, `item_answered`×10, sin
+`sessionToken`, token `status:'used'`. Selección aleatoria de 10/24 ítems mezclando las 4 zonas.
+
+**Dato de eventos definitivo:** 22/sesión nominal (1 started + 10 attempt + 10 item_answered + 1
+completed), ~32 peor caso. Cap de 200 con margen ~6x → **NO se recalibra**.
+
+**Security — requisitos FIRMES arrastrados a H3** (además de excluir `examples/`):
+- REQ-H3-1: el export DEBE excluir el hook `__demoAutoplay` + contraprueba QA `window.__demoAutoplay
+  === undefined` en el bundle de producción (cierra MEDIO-1).
+- REQ-H3-2: GameHost expone origin restringido al iframe (cierra targetOrigin `*`) — arquitecto+backend.
+- REQ-H3-3: self-host de Poppins/Nunito (quitar Google Fonts CDN del HTML de producción).
+- REQ-H3-4: silenciar `console.*` en el bundle de producción.
+- (H-7 de B-2): sin sourcemaps en el ZIP.
 
 ### Cierre de H1 (2026-06-12)
 
