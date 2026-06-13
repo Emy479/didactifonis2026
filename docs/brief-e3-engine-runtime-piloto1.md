@@ -188,9 +188,42 @@ se necesita recién para E4/publicación real.
 
 ## 5. Estado de ejecución
 
-- [ ] H1 — runtime + plantilla + drag&drop (`didactifonis-frontend`)
-- [ ] Revisión H1 (arquitecto) + validación GameHost
-- [ ] H2 — La Casa Mágica (`didactifonis-frontend`) + QA E2E + security bundle
+- [x] H1 — runtime + plantilla + drag&drop (`didactifonis-frontend`) — **COMPLETO 2026-06-12**
+- [x] Revisión H1 (arquitecto) + validación GameHost — **VERDE QA + APTO-CON-OBS security**
+- [ ] H2 — La Casa Mágica (`didactifonis-frontend`) + QA E2E + security bundle ← **SIGUE**
 - [ ] Recalibración `EVENTS_INGEST_CAP` con datos reales (arquitecto propone, Emiliano aprueba)
 - [ ] H3 — export/manifest/validador (`didactifonis-frontend` + revisión de conformidad del arquitecto)
 - [ ] D-E3-1..4 resueltas por Emiliano
+
+### Cierre de H1 (2026-06-12)
+
+**Commits:**
+- Repo engine `C:\didactifonis-engine`: `4bc9a5c` — runtime Phaser + plantilla + drag&drop.
+- Repo plataforma `C:\Didactifonis2026`: `5ddab5a` — arnés E2E QA (`client/e2e/e3-h1-smoke.mjs`)
+  + contraprueba Mongo (`server/scripts/verifyE3Result.js`).
+
+**Validación E2E (GameHost real):** resultado en Mongo con `scorePercent` derivado
+server-side (100 = round(20/20*100)), `passed` boolean derivado, `maxScore:20`,
+`attemptCount:10`, sin campo `sessionToken`, token `status:'used'`. Eventos del molde
+completos.
+
+**Defecto real corregido durante la validación:** `RoundActivity._onGameComplete()` no
+emitía `activity_completed` (el SDK/host NO lo sintetiza; lo emite el juego vía
+`reportEvent`, postmessage-protocol §2.2). Corregido: `reportEvent(ACTIVITY_COMPLETED)`
+antes de `submitResults`. Incluido en `4bc9a5c`.
+
+**Dato real de eventos (para recalibrar `EVENTS_INGEST_CAP`, hoy 200):**
+22 eventos/sesión nominal (1 `activity_started` + 10 `attempt` + 10 `item_answered`
++ 1 `activity_completed`); ~43 en peor caso (2 intentos/ronda + hints). Margen actual
+~4.6x–9x. **Recoger el dato definitivo con La Casa Mágica real en H2** antes de proponer
+el valor recalibrado a Emiliano.
+
+**Deudas registradas por la auditoría de security (no bloquean H1):**
+- BAJO-1: Phaser inlinea `localStorage`/XHR como código muerto no invocado por el engine.
+  Evaluar tree-shaking del loader XHR en H2/H3 si los juegos tampoco lo usan.
+- BAJO-2: la demo HTML de DEV carga Google Fonts por CDN (solo en `examples/`, no en el
+  bundle). Decoración de la página de desarrollo.
+- MEDIO-1: el hook `__demoAutoplay` (solo en `examples/`, NO en el bundle) permitiría
+  fabricar resultados si se sirviera en producción. **Requisito firme para H3:** el script
+  de export DEBE excluir `examples/` del artefacto de producción (solo `games/<juego>` +
+  dist + manifest + assets). Anotado en H3.
