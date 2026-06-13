@@ -1082,6 +1082,12 @@ del arquitecto aceptada.)
   `didactifonis-security` sobre manejo de credenciales y datos del menor en el SDK.
 
 ### Fase E3 — Engine de autoría / export de bundle (proyecto SDK)
+- **Estado (2026-06-12): EN CURSO.** Corte incremental decidido y briefado en
+  `docs/brief-e3-engine-runtime-piloto1.md`: H1 runtime Phaser mínimo + plantilla del molde
+  + drag&drop (`packages/engine`) → H2 Piloto 1 La Casa Mágica completo → H3 export
+  ZIP/manifest (inglés, esquema en `@didactifonis/contract`) + validador local. Editor
+  Electron, Rive y Piloto 2 FUERA del corte (post-H3); 4 decisiones D-E3-1..4 elevadas a
+  Emiliano (assets/audio, Rive diferido, personaje guía, vehículo de `abandoned`).
 - **Objetivo:** herramienta que produce el ZIP de publicación válido (2.D) con `manifest.json`.
 - **Depende de:** ADR-SDK-04 (tecnología base).
 - **Entregables:** export que genera ZIP conforme al contrato de publicación; validador local
