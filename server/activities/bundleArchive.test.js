@@ -202,3 +202,61 @@ test('rechaza zip-bomb por maxFileBytes individual sin exceder maxTotalBytes', a
     (err) => err instanceof BundleError && err.code === 'ZIP_BOMB'
   );
 });
+
+// --- Tests de loadAndValidateManifest ---
+
+const { loadAndValidateManifest } = require('./bundleArchive');
+
+const VALID_MANIFEST = {
+  id: 'casa-magica',
+  title: 'La Casa Mágica',
+  version: '1.0.0',
+  category: 'fonologia',
+  level: 1,
+  ageMin: 4,
+  ageMax: 8,
+  durationMin: 10,
+  entryPoint: 'index.html',
+  manifestContractVersion: '1.0',
+};
+
+function writeManifestDir(manifestObj, { withEntry = true } = {}) {
+  const dir = tmpDir();
+  if (manifestObj !== undefined) {
+    fs.writeFileSync(path.join(dir, 'manifest.json'), typeof manifestObj === 'string' ? manifestObj : JSON.stringify(manifestObj));
+  }
+  if (withEntry && manifestObj && manifestObj.entryPoint) {
+    fs.writeFileSync(path.join(dir, manifestObj.entryPoint), '<html></html>');
+  }
+  return dir;
+}
+
+test('loadAndValidateManifest devuelve el manifest válido', () => {
+  const dir = writeManifestDir(VALID_MANIFEST);
+  const m = loadAndValidateManifest(dir);
+  assert.strictEqual(m.id, 'casa-magica');
+});
+
+test('falla si no hay manifest.json', () => {
+  const dir = tmpDir();
+  assert.throws(() => loadAndValidateManifest(dir), (e) => e.code === 'MANIFEST_MISSING');
+});
+
+test('falla si manifest.json no es JSON', () => {
+  const dir = writeManifestDir('{ no es json', { withEntry: false });
+  assert.throws(() => loadAndValidateManifest(dir), (e) => e.code === 'MANIFEST_PARSE');
+});
+
+test('falla si el manifest no cumple el contrato (con details)', () => {
+  const bad = { ...VALID_MANIFEST, level: 999 };
+  const dir = writeManifestDir(bad);
+  assert.throws(
+    () => loadAndValidateManifest(dir),
+    (e) => e.code === 'MANIFEST_INVALID' && Array.isArray(e.details) && e.details.length > 0
+  );
+});
+
+test('falla si el entryPoint declarado no existe en el ZIP', () => {
+  const dir = writeManifestDir(VALID_MANIFEST, { withEntry: false });
+  assert.throws(() => loadAndValidateManifest(dir), (e) => e.code === 'ENTRYPOINT_MISSING');
+});

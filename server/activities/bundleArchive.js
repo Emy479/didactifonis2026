@@ -6,6 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const yauzl = require('yauzl');
+const { validateManifest } = require('@didactifonis/contract');
 
 class BundleError extends Error {
   constructor(code, httpStatus, message, details) {
@@ -103,4 +104,26 @@ function extractZipToDir(zipPath, destDir, limits) {
   });
 }
 
-module.exports = { BundleError, extractZipToDir, isUnsafePath, isSymlink };
+function loadAndValidateManifest(destDir) {
+  const manifestPath = path.join(destDir, 'manifest.json');
+  if (!fs.existsSync(manifestPath)) {
+    throw new BundleError('MANIFEST_MISSING', 400, 'El ZIP no contiene manifest.json en la raíz.');
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  } catch {
+    throw new BundleError('MANIFEST_PARSE', 400, 'manifest.json no es JSON válido.');
+  }
+  const { valid, errors } = validateManifest(manifest);
+  if (!valid) {
+    throw new BundleError('MANIFEST_INVALID', 400, 'El manifest no cumple el contrato de publicación.', errors);
+  }
+  const entryAbs = path.join(destDir, manifest.entryPoint);
+  if (!fs.existsSync(entryAbs)) {
+    throw new BundleError('ENTRYPOINT_MISSING', 400, 'El entryPoint declarado no existe en el ZIP: ' + manifest.entryPoint);
+  }
+  return manifest;
+}
+
+module.exports = { BundleError, extractZipToDir, loadAndValidateManifest, isUnsafePath, isSymlink };
