@@ -16,7 +16,7 @@ const NIVEL_COLOR = {
 const FORM_INICIAL = {
   title: '', type: 'fonema', therapeuticGoal: '', difficultyLevel: 1,
   ageMin: '', ageMax: '', durationMinutes: '', availableToTutors: false,
-  thumbnailUrl: '', bundleUrl: '',
+  thumbnailUrl: '',
 };
 
 export default function AdminActividades() {
@@ -70,7 +70,6 @@ export default function AdminActividades() {
       durationMinutes: act.durationMinutes ?? '',
       availableToTutors: act.availableToTutors,
       thumbnailUrl: act.thumbnailUrl || '',
-      bundleUrl: act.bundleUrl || '',
     });
     setError('');
     setBundleFile(null);
@@ -358,9 +357,21 @@ export default function AdminActividades() {
                   <input
                     type="file"
                     accept=".zip,application/zip"
-                    onChange={(e) => e.target.files?.[0] && handleReplaceBundle(e.target.files[0])}
+                    onChange={(e) => setBundleFile(e.target.files?.[0] || null)}
                     className={INPUT_CLASS}
                   />
+                  {bundleFile && (
+                    <div className="mt-2 flex items-center gap-3">
+                      <span className="font-body text-xs text-text-soft truncate max-w-[180px]">{bundleFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleReplaceBundle(bundleFile)}
+                        className="font-body text-xs text-white bg-primary rounded-lg px-4 py-2 hover:opacity-90 transition"
+                      >
+                        Confirmar reemplazo de bundle
+                      </button>
+                    </div>
+                  )}
                   <p className="font-body text-xs text-text-soft mt-1">
                     Versión actual: {editTarget.gameVersion || '—'}. Subir un .zip reemplaza el juego (mismo gameId).
                   </p>
