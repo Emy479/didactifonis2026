@@ -1,8 +1,57 @@
+const path = require('path');
+const fs = require('fs');
 const { Router } = require('express');
+const mongoose = require('mongoose');
+const multer = require('multer');
 const Activity = require('../models/Activity');
 const { protect, requireRole, requireActiveSubscription } = require('../middleware/auth');
+const storage = require('../storage');
+const { extractZipToDir, loadAndValidateManifest, BundleError } = require('../activities/bundleArchive');
 
 const router = Router();
+
+const upload = multer({
+  dest: path.join(require('os').tmpdir(), 'didactifonis-uploads'),
+  limits: { fileSize: Number(process.env.BUNDLE_MAX_ZIP_BYTES) || 50 * 1024 * 1024 },
+});
+
+const BUNDLE_LIMITS = {
+  maxFiles: Number(process.env.BUNDLE_MAX_FILES) || 2000,
+  maxFileBytes: Number(process.env.BUNDLE_MAX_FILE_BYTES) || 50 * 1024 * 1024,
+  maxTotalBytes: Number(process.env.BUNDLE_MAX_TOTAL_BYTES) || 200 * 1024 * 1024,
+};
+
+const ACTIVITY_TYPES = ['fonema', 'silaba', 'palabra', 'comprension', 'otro'];
+
+// Valida los campos terapéuticos que aporta el Admin en el multipart.
+// Devuelve { ok: true, value } o { ok: false, message }.
+function parseAdminFields(body) {
+  const { type, difficultyLevel, therapeuticGoal, availableToTutors, passThreshold } = body;
+  if (!ACTIVITY_TYPES.includes(type)) {
+    return { ok: false, message: 'Tipo de actividad inválido.' };
+  }
+  const lvl = Number(difficultyLevel);
+  if (![1, 2, 3].includes(lvl)) {
+    return { ok: false, message: 'El nivel de dificultad debe ser 1, 2 o 3.' };
+  }
+  let threshold = 60;
+  if (passThreshold !== undefined && passThreshold !== '') {
+    threshold = Number(passThreshold);
+    if (Number.isNaN(threshold) || threshold < 0 || threshold > 100) {
+      return { ok: false, message: 'El umbral de aprobación debe estar entre 0 y 100.' };
+    }
+  }
+  return {
+    ok: true,
+    value: {
+      type,
+      difficultyLevel: lvl,
+      therapeuticGoal: therapeuticGoal || null,
+      availableToTutors: availableToTutors === 'true' || availableToTutors === true,
+      passThreshold: threshold,
+    },
+  };
+}
 
 // GET / — lista actividades según rol
 router.get('/', protect, requireActiveSubscription, async (req, res, next) => {
@@ -94,6 +143,61 @@ router.put('/:id', protect, requireRole('admin'), async (req, res, next) => {
     return res.json(activity);
   } catch (err) {
     return next(err);
+  }
+});
+
+// POST /upload — subir bundle ZIP y crear actividad (solo admin)
+router.post('/upload', protect, requireRole('admin'), upload.single('bundle'), async (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'Falta el archivo bundle (.zip).' });
+  }
+  const admin = parseAdminFields(req.body);
+  if (!admin.ok) {
+    fs.rmSync(req.file.path, { force: true });
+    return res.status(400).json({ message: admin.message });
+  }
+
+  const activityId = new mongoose.Types.ObjectId();
+  const tempDir = path.join(storage.root(), `.tmp-${activityId}`);
+
+  try {
+    await extractZipToDir(req.file.path, tempDir, BUNDLE_LIMITS);
+    const manifest = loadAndValidateManifest(tempDir);
+
+    storage.save(activityId, tempDir); // mueve tempDir -> baseDir/<activityId>
+
+    const activity = await Activity.create({
+      _id: activityId,
+      title: manifest.title,
+      type: admin.value.type,
+      difficultyLevel: admin.value.difficultyLevel,
+      therapeuticGoal: admin.value.therapeuticGoal,
+      ageRange: { min: manifest.ageMin, max: manifest.ageMax },
+      durationMinutes: manifest.durationMin,
+      availableToTutors: admin.value.availableToTutors,
+      passThreshold: admin.value.passThreshold,
+      gameId: manifest.id,
+      gameVersion: manifest.version,
+      entryPoint: manifest.entryPoint,
+      bundlePath: String(activityId),
+      manifest,
+      bundleUrl: storage.serveUrl(activityId, manifest.entryPoint),
+      createdBy: req.user._id,
+    });
+
+    return res.status(201).json(activity);
+  } catch (err) {
+    storage.delete(activityId); // limpia la carpeta committeada si Activity.create falló
+    if (err instanceof BundleError) {
+      if (err.code === 'ZIP_SLIP' || err.code === 'SYMLINK') {
+        console.warn(`[seguridad] bundle rechazado (${err.code}) admin=${req.user._id}: ${err.message}`);
+      }
+      return res.status(err.httpStatus).json({ message: err.message, details: err.details || undefined });
+    }
+    return next(err);
+  } finally {
+    try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch { /* ya movido */ }
+    try { fs.rmSync(req.file.path, { force: true }); } catch { /* ya borrado */ }
   }
 });
 
