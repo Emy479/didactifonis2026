@@ -4,7 +4,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const yazl = require('yazl');
-const { extractZipToDir, BundleError } = require('./bundleArchive');
+const { extractZipToDir, BundleError, isUnsafePath, isSymlink } = require('./bundleArchive');
 
 const LIMITS = { maxFiles: 100, maxFileBytes: 1024 * 1024, maxTotalBytes: 4 * 1024 * 1024 };
 
@@ -148,6 +148,57 @@ test('rechaza zip-bomb por tamaño total descomprimido', async () => {
   const dest = tmpDir();
   await assert.rejects(
     () => extractZipToDir(zipPath, dest, { maxFiles: 100, maxFileBytes: 5000, maxTotalBytes: 1000 }),
+    (err) => err instanceof BundleError && err.code === 'ZIP_BOMB'
+  );
+});
+
+// --- Tests unitarios directos para isUnsafePath ---
+
+test('isUnsafePath: ruta con .. al inicio → true', () => {
+  assert.strictEqual(isUnsafePath('../evil.txt'), true);
+});
+
+test('isUnsafePath: ruta con .. en segmento intermedio → true', () => {
+  assert.strictEqual(isUnsafePath('a/../../b'), true);
+});
+
+test('isUnsafePath: ruta absoluta → true', () => {
+  assert.strictEqual(isUnsafePath('/etc/passwd'), true);
+});
+
+test('isUnsafePath: ruta con backslash → true', () => {
+  assert.strictEqual(isUnsafePath('a\\b'), true);
+});
+
+test('isUnsafePath: ruta anidada segura → false', () => {
+  assert.strictEqual(isUnsafePath('assets/img/a.png'), false);
+});
+
+test('isUnsafePath: nombre simple → false', () => {
+  assert.strictEqual(isUnsafePath('index.html'), false);
+});
+
+// --- Tests unitarios directos para isSymlink ---
+
+test('isSymlink: externalFileAttributes de symlink (0o120000 << 16) → true', () => {
+  const symlinkAttrs = (0o120000 << 16) >>> 0;
+  assert.strictEqual(isSymlink({ externalFileAttributes: symlinkAttrs }), true);
+});
+
+test('isSymlink: externalFileAttributes de archivo normal (0o100644 << 16) → false', () => {
+  const regularAttrs = (0o100644 << 16) >>> 0;
+  assert.strictEqual(isSymlink({ externalFileAttributes: regularAttrs }), false);
+});
+
+// --- Test zip-bomb por límite por-archivo (sin exceder maxTotalBytes) ---
+
+test('rechaza zip-bomb por maxFileBytes individual sin exceder maxTotalBytes', async () => {
+  // Un único archivo de 3000 bytes supera maxFileBytes (2000) pero no maxTotalBytes (10000)
+  const big = 'b'.repeat(3000);
+  const zipPath = await buildZip([{ name: 'toobig.txt', content: big }]);
+  const dest = tmpDir();
+  await assert.rejects(
+    () => extractZipToDir(zipPath, dest, { maxFiles: 100, maxFileBytes: 2000, maxTotalBytes: 10000 }),
     (err) => err instanceof BundleError && err.code === 'ZIP_BOMB'
   );
 });
