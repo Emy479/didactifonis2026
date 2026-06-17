@@ -201,4 +201,58 @@ router.post('/upload', protect, requireRole('admin'), upload.single('bundle'), a
   }
 });
 
+// PUT /:id/bundle — reemplazar el bundle de una actividad existente (solo admin)
+router.put('/:id/bundle', protect, requireRole('admin'), upload.single('bundle'), async (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'Falta el archivo bundle (.zip).' });
+  }
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    fs.rmSync(req.file.path, { force: true });
+    return res.status(400).json({ message: 'ID de actividad inválido.' });
+  }
+
+  const activity = await Activity.findById(req.params.id);
+  if (!activity) {
+    fs.rmSync(req.file.path, { force: true });
+    return res.status(404).json({ message: 'Actividad no encontrada.' });
+  }
+
+  const tempDir = path.join(storage.root(), `.tmp-${req.params.id}-${Date.now()}`);
+
+  try {
+    await extractZipToDir(req.file.path, tempDir, BUNDLE_LIMITS);
+    const manifest = loadAndValidateManifest(tempDir);
+
+    if (activity.gameId && manifest.id !== activity.gameId) {
+      throw new BundleError(
+        'GAMEID_MISMATCH',
+        400,
+        `El juego subido (${manifest.id}) no coincide con el de esta actividad (${activity.gameId}).`
+      );
+    }
+
+    storage.replace(req.params.id, tempDir); // swap atómico con rollback
+
+    activity.gameVersion = manifest.version;
+    activity.entryPoint = manifest.entryPoint;
+    activity.manifest = manifest;
+    activity.bundleUrl = storage.serveUrl(req.params.id, manifest.entryPoint);
+    if (!activity.gameId) activity.gameId = manifest.id;
+    await activity.save();
+
+    return res.status(200).json(activity);
+  } catch (err) {
+    if (err instanceof BundleError) {
+      if (err.code === 'ZIP_SLIP' || err.code === 'SYMLINK') {
+        console.warn(`[seguridad] re-subida rechazada (${err.code}) admin=${req.user._id} actividad=${req.params.id}: ${err.message}`);
+      }
+      return res.status(err.httpStatus).json({ message: err.message, details: err.details || undefined });
+    }
+    return next(err);
+  } finally {
+    try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch { /* ya movido */ }
+    try { fs.rmSync(req.file.path, { force: true }); } catch { /* ya borrado */ }
+  }
+});
+
 module.exports = router;
