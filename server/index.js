@@ -21,6 +21,7 @@ const progressRouter = require('./routes/progress');
 const linkRouter = require('./routes/link');
 const directoryRouter = require('./routes/directory');
 const messagesRouter = require('./routes/messages');
+const gameStorage = require('./storage');
 
 const app = express();
 
@@ -124,6 +125,23 @@ if (process.env.DEMO_MODE === 'true' && ENV === 'production') {
   console.error('DEMO_MODE no puede habilitarse en produccion. Ignorando.');
   process.env.DEMO_MODE = 'false';
 }
+
+// Servido de bundles de juego subidos. Cross-origin respecto al cliente; el iframe
+// del GameHost ya aplica sandbox sin allow-same-origin. Cabeceras de seguridad +
+// sin listado de directorios + dotfiles denegados (oculta .tmp-* y .old-*).
+app.use(
+  '/games',
+  (req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors *"
+    );
+    next();
+  },
+  express.static(gameStorage.root(), { index: false, dotfiles: 'deny' })
+);
 
 // ── Error handler global ─────────────────────────────────────────────────────
 // Captura cualquier error enviado con next(err) desde rutas y controladores.
