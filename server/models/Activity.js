@@ -52,6 +52,28 @@ const activitySchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    // ── Campos de bundle subido (publicación 2.D). Opcionales: las actividades
+    // creadas manualmente (sin ZIP) o legacy no los tienen. ──────────────────
+    gameId: {
+      type: String,
+      default: null,
+    },
+    gameVersion: {
+      type: String,
+      default: null,
+    },
+    entryPoint: {
+      type: String,
+      default: null,
+    },
+    bundlePath: {
+      type: String,
+      default: null,
+    },
+    manifest: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
     isActive: {
       type: Boolean,
       default: true,
