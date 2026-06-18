@@ -62,6 +62,10 @@ function extractZipToDir(zipPath, destDir, limits) {
         // Entrada de directorio
         if (/\/$/.test(name)) {
           if (isUnsafePath(name)) return fail(new BundleError('ZIP_SLIP', 400, 'Ruta no permitida en el ZIP: ' + name));
+          fileCount += 1;
+          if (fileCount > limits.maxFiles) {
+            return fail(new BundleError('ZIP_BOMB', 400, 'El ZIP excede el número máximo de entradas (directorio).'));
+          }
           fs.mkdirSync(path.join(destDir, name), { recursive: true });
           return zip.readEntry();
         }

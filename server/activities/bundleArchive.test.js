@@ -260,3 +260,34 @@ test('falla si el entryPoint declarado no existe en el ZIP', () => {
   const dir = writeManifestDir(VALID_MANIFEST, { withEntry: false });
   assert.throws(() => loadAndValidateManifest(dir), (e) => e.code === 'ENTRYPOINT_MISSING');
 });
+
+// --- M1: zip-bomb por número de directorios vacíos ---
+
+/**
+ * buildZipWithDirs — construye un ZIP con únicamente directorios vacíos.
+ * yazl.addEmptyDirectory(name) añade una entrada de directorio (trailing slash)
+ * sin contenido, lo que es suficiente para el vector de ataque M1.
+ */
+function buildZipWithDirs(count) {
+  return new Promise((resolve) => {
+    const zip = new yazl.ZipFile();
+    for (let i = 0; i < count; i++) {
+      zip.addEmptyDirectory(`dir${i}/`);
+    }
+    zip.end();
+    const zipPath = path.join(tmpDir(), 'dirs.zip');
+    const out = fs.createWriteStream(zipPath);
+    zip.outputStream.pipe(out).on('close', () => resolve(zipPath));
+  });
+}
+
+test('rechaza zip-bomb por exceso de directorios vacíos (M1)', async () => {
+  // Construimos un ZIP con más directorios que maxFiles para el límite de prueba.
+  const testLimits = { maxFiles: 3, maxFileBytes: 1024, maxTotalBytes: 1024 };
+  const zipPath = await buildZipWithDirs(5); // 5 dirs > maxFiles=3
+  const dest = tmpDir();
+  await assert.rejects(
+    () => extractZipToDir(zipPath, dest, testLimits),
+    (err) => err instanceof BundleError && err.code === 'ZIP_BOMB'
+  );
+});
