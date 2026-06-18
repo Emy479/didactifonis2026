@@ -123,12 +123,32 @@ Chile.
 
 ## 4. Producto / contenido (decisiones abiertas)
 
-### 4.1 🟡 Engine de juegos — reanudar o mantener pausado
-**Estado.** E3 cerrado técnicamente; Engine **pausado** (no abandonado). Quedan 4
-decisiones abiertas para una versión publicable (arte/audio definitivos, uso de Rive,
-personaje guía, manejo de partidas abandonadas — ver `docs/plan-sdk-engine-juegos.md`).
-**Decisión.** Cuándo reanudarlo. Sin juegos reales subidos, la plataforma funciona pero
-las actividades para el niño son placeholders.
+### 4.1 🟡 Engine de juegos — REANUDADO (2026-06-18)
+**Estado.** E3 cerrado técnicamente y **E5 (ciclo de publicación real) validado end-to-end**
+con el bundle real de Casa Mágica. Las 4 decisiones abiertas se cerraron:
+- **D-E3-1 arte:** comisionar **ilustrador** (acción externa de Emiliano — ver brief).
+- **D-E3-1 audio:** **locutor humano profesional**, pre-grabado, nunca TTS en runtime (idem).
+- **D-E3-3 personaje guía:** **Tomás el Constructor Mágico**.
+- **D-E3-2 (Rive) y D-E3-4 (abandoned):** diferidas formalmente.
+
+**Acción tuya (externa, ruta crítica del Piloto 1).** Comisionar ilustrador y locutor con
+el **`docs/brief-produccion-assets-piloto1.md`** (lista exacta de 24 sprites + 4 fondos +
+Tomás, y guion de 24 locuciones con naming para swap 1:1).
+**Nota técnica.** El audio es swap 1:1 directo; el **arte requiere un cambio de código
+acotado** (el juego dibuja con Phaser Graphics, sin `load.image()`; hay que añadir preload
+de imágenes + fallback al shape). Especificado en el brief; es ingeniería, no bloquea
+comisionar.
+
+### 4.1.bis 🟡 D-E5-2 — Hosting de bundles de juego en producción
+**Decisión (2026-06-18): reverse-proxy a subdominio** (`juegos.tudominio.cl`), ya soportado
+por `GAME_PUBLIC_ORIGIN`. Hoy `:3002` con `express.static` es solo dev. Reflejado en el
+checklist de despliegue (Fase A/D). CDN queda como opción futura si el volumen lo justifica.
+
+### 4.1.ter 🟡 D-E5-3 — Estrategia de test del ciclo de publicación
+**Decisión (2026-06-18): test de integración server-side** para CI (upload→validar→sessions
+→results→Mongo, sin navegador). El tramo SDK `iframe→postMessage` ya está cubierto por las
+validaciones B-2 y E3-H1 (el bundle de prod elimina el hook de autoplay, así que Playwright
+no puede ejercitarlo). Pendiente de implementar cuando se monte CI.
 
 ### 4.2 🟡 Secciones Admin marcadas "Próximo"
 **Qué es.** Pagos, Reportes, Contenido, Soporte y Configuración en el panel Admin son
