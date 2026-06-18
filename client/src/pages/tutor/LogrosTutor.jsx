@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useChild } from '../../context/ChildContext';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../../config';
 
 const CATEGORY_CONFIG = {
   inicio: { label: 'Inicio', color: 'text-accent' },

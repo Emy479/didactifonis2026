@@ -8,8 +8,7 @@ import AdminNinos from './AdminNinos';
 import AdminActividades from './AdminActividades';
 import AdminTerapias from './AdminTerapias';
 import AdminSuscripciones from './AdminSuscripciones';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../../config';
 
 const NAV_ITEMS = [
   { id: 'inicio',        label: 'Inicio',           icon: '▦' },
