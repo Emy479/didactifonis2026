@@ -50,22 +50,73 @@ async function doLogin() {
   const token = body.token || body.accessToken;
   const user  = body.user;
   if (!token || !user) throw new Error('Respuesta login inesperada');
+
+  // Extraer refresh_token del header Set-Cookie para plantarlo en el browser context.
+  // El servidor lo setea con path:/api/auth, sameSite:Strict, httpOnly:true.
+  let refreshToken = null;
+  const setCookieHeader = res.headers.get('set-cookie');
+  if (setCookieHeader) {
+    const match = setCookieHeader.match(/refresh_token=([^;]+)/);
+    if (match) refreshToken = match[1];
+  }
+  if (refreshToken) {
+    log('refresh_token extraido del Set-Cookie OK.');
+  } else {
+    log('WARN: refresh_token no encontrado en Set-Cookie (AuthContext puede desautenticar).');
+  }
+
   log('Login OK. role=' + user.role);
-  return { token, user };
+  return { token, user, refreshToken };
 }
 
 async function main() {
   log('=== Arnes E3-H2 Casa Magica iniciando. AssignmentId: ' + ASSIGNMENT_ID + ' ===');
 
-  const { token, user } = await doLogin();
+  const { token, user, refreshToken } = await doLogin();
 
   const browser = await chromium.launch({ headless: true });
   const ctx = await browser.newContext();
 
+  // Plantar la cookie refresh_token (httpOnly) antes de la navegacion.
+  // Atributos reales tomados de authController.js: path /api/auth, sameSite Strict, httpOnly true, secure false (dev).
+  if (refreshToken) {
+    await ctx.addCookies([{
+      name: 'refresh_token',
+      value: refreshToken,
+      domain: 'localhost',
+      path: '/api/auth',
+      httpOnly: true,
+      sameSite: 'Strict',
+      secure: false,
+    }]);
+    log('Cookie refresh_token plantada en el browser context.');
+  }
+
   await ctx.addInitScript(({ t, u }) => {
     if (window === window.top) {
-      localStorage.setItem('auth_token', t);
       localStorage.setItem('auth_user', JSON.stringify(u));
+
+      // Intercept del refresh: AuthContext llama POST /api/auth/refresh al montar
+      // para hidratar _accessToken en memoria (apiFetch.js). Si el servidor responde
+      // 429 (rate limiter) se produce logout. Para evitar esa dependencia en el arnés,
+      // interceptamos ese unico endpoint y respondemos con el accessToken ya conocido
+      // (obtenido en el login previo de este mismo run). El resto de fetches pasan sin
+      // modificacion. Esta tecnica es estandar en E2E: no se toca codigo de produccion.
+      const _origFetch = window.fetch;
+      window.fetch = function(input, init) {
+        const url = typeof input === 'string' ? input : (input && input.url ? input.url : String(input));
+        if (
+          url.includes('/api/auth/refresh') &&
+          init && init.method === 'POST' &&
+          init.credentials === 'include'
+        ) {
+          return Promise.resolve(new Response(
+            JSON.stringify({ accessToken: t }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          ));
+        }
+        return _origFetch.apply(this, arguments);
+      };
     }
   }, { t: token, u: user });
 
@@ -97,11 +148,12 @@ async function main() {
   log('Esperando que el iframe del juego sea montado por GameHost...');
   let iframeHandle = null;
   try {
-    await page.waitForSelector('iframe[src*="casa-magica"]', { timeout: 15000 });
-    log('Iframe del engine detectado (src contiene casa-magica).');
-    iframeHandle = await page.$('iframe[src*="casa-magica"]');
+    // El bundle subido se sirve desde el servidor de juegos en :3002 bajo /games/<objectId>/index.html.
+    await page.waitForSelector('iframe[src*="localhost:3002"]', { timeout: 15000 });
+    log('Iframe del engine detectado (src contiene localhost:3002).');
+    iframeHandle = await page.$('iframe[src*="localhost:3002"]');
   } catch (_) {
-    log('WARN: iframe con src demo-engine-h1 no detectado; buscando cualquier iframe...');
+    log('WARN: iframe con src localhost:3002 no detectado; buscando cualquier iframe...');
     try {
       await page.waitForSelector('iframe', { timeout: 10000 });
       iframeHandle = await page.$('iframe');
