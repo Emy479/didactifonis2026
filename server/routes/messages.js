@@ -84,12 +84,10 @@ function parseMessagesPagination(query) {
     const parsed = parseInt(query.limit, 10);
     if (!isNaN(parsed) && parsed >= MIN_LIMIT) {
       limit = Math.min(parsed, MAX_LIMIT);
-    }
-    // Si parsed < MIN_LIMIT o NaN → queda DEFAULT_LIMIT (se ignora el valor inválido).
-    // Clamp a MIN_LIMIT se aplica también: valores < 1 quedan en DEFAULT.
-    if (!isNaN(parsed) && parsed < MIN_LIMIT) {
+    } else if (!isNaN(parsed) && parsed < MIN_LIMIT) {
       limit = MIN_LIMIT;
     }
+    // NaN → queda DEFAULT_LIMIT (se ignora el valor inválido).
   }
 
   // Parsear before: timestamp ISO o nulo.
