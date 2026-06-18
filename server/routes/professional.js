@@ -4,6 +4,7 @@ const Assignment = require('../models/Assignment');
 const ActivityResult = require('../activities/ActivityResult');
 const Therapy = require('../models/Therapy');
 const { protect, requireRole, requireActiveSubscription } = require('../middleware/auth');
+const { validateTherapyFields } = require('./therapyValidation');
 
 const router = Router();
 
@@ -87,8 +88,14 @@ router.post('/therapies', async (req, res, next) => {
   try {
     const { name, childId, therapeuticGoal, startDate } = req.body;
 
-    if (!name || !childId) {
-      return res.status(400).json({ message: 'name y childId son obligatorios' });
+    // Validar forma de los campos ANTES de tocar la DB.
+    const validation = validateTherapyFields({ name, therapeuticGoal, startDate }, { partial: false });
+    if (!validation.ok) {
+      return res.status(400).json({ message: validation.message });
+    }
+
+    if (!childId) {
+      return res.status(400).json({ message: 'childId es obligatorio' });
     }
 
     const child = await Child.findById(childId);
@@ -104,11 +111,13 @@ router.post('/therapies', async (req, res, next) => {
     }
 
     const therapy = await Therapy.create({
-      name,
+      name: validation.value.name,
       childId,
       professionalId: req.user._id,
-      therapeuticGoal: therapeuticGoal || null,
-      startDate: startDate || new Date(),
+      therapeuticGoal: validation.value.therapeuticGoal !== undefined
+        ? validation.value.therapeuticGoal
+        : null,
+      startDate: validation.value.startDate || new Date(),
       createdBy: req.user._id,
     });
 
@@ -133,10 +142,17 @@ router.patch('/therapies/:id', async (req, res, next) => {
     }
 
     const { name, therapeuticGoal, status, sessions } = req.body;
-    if (name !== undefined) therapy.name = name;
-    if (therapeuticGoal !== undefined) therapy.therapeuticGoal = therapeuticGoal;
-    if (status !== undefined) therapy.status = status;
-    if (sessions !== undefined) therapy.sessions = sessions;
+
+    // Validar forma de los campos ANTES de asignar al documento.
+    const validation = validateTherapyFields({ name, therapeuticGoal, status, sessions }, { partial: true });
+    if (!validation.ok) {
+      return res.status(400).json({ message: validation.message });
+    }
+
+    if (validation.value.name !== undefined) therapy.name = validation.value.name;
+    if (validation.value.therapeuticGoal !== undefined) therapy.therapeuticGoal = validation.value.therapeuticGoal;
+    if (validation.value.status !== undefined) therapy.status = validation.value.status;
+    if (validation.value.sessions !== undefined) therapy.sessions = validation.value.sessions;
 
     await therapy.save();
     await therapy.populate('childId', 'name avatarId');
