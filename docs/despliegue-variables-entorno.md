@@ -23,6 +23,9 @@
 | `GAME_PUBLIC_ORIGIN` | sí | Origen público de los bundles. **Debe ser un origen distinto al de la API** (aislamiento de seguridad A1). En producción: un subdominio servido por reverse-proxy hacia `GAME_PUBLIC_PORT`, ej. `https://juegos.midominio.cl` |
 | `GAME_STORAGE_DIR` | recomendada | Ruta en disco persistente donde se almacenan los bundles descomprimidos. Default: `server/storage-data/game-bundles` (válido en VPS con disco persistente) |
 | `BUNDLE_MAX_ZIP_BYTES` / `BUNDLE_MAX_FILES` / `BUNDLE_MAX_FILE_BYTES` / `BUNDLE_MAX_TOTAL_BYTES` | no | Límites de subida de bundle; defaults en código (50MB / 2000 / 50MB / 200MB) |
+| `RESEND_API_KEY` | sí (si se usa el contacto de la landing) | API key de Resend para el envío del formulario de contacto. **Secreto** — nunca en código ni logs. |
+| `RESEND_FROM` | sí (idem) | Remitente verificado en Resend, sobre dominio verificado (ej. `Didactifonis <contacto@midominio.cl>`). |
+| `CONTACT_TO` | sí (idem) | Buzón de destino de los mensajes del formulario de contacto (ej. `soporte@midominio.cl`). |
 
 ## 2. Cliente / plataforma (`/client`) — `.env`
 
@@ -35,6 +38,11 @@
 | Variable | Obligatoria en prod | Descripción |
 |---|---|---|
 | `VITE_APP_URL` | sí | URL de la app/plataforma a la que enlaza la landing (Acceder / Registrarse), ej. `https://app.midominio.cl`. Se inyecta en build. Si no se define, cae a `http://localhost:5173`. |
+| `VITE_API_URL` | sí | URL del backend de la API al que la landing POSTea el formulario de contacto (ej. `https://api.midominio.cl`). Se inyecta en build. Si no se define, cae a `http://localhost:3001`. |
+
+> **Nota CORS para el contacto de la landing:** el origen de la landing en producción
+> debe estar incluido en `CORS_ORIGIN` del servidor para que `POST /api/contact` sea
+> alcanzable desde la landing.
 
 ## 4. Topología de orígenes recomendada (producción)
 

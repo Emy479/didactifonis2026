@@ -21,6 +21,7 @@ const progressRouter = require('./routes/progress');
 const linkRouter = require('./routes/link');
 const directoryRouter = require('./routes/directory');
 const messagesRouter = require('./routes/messages');
+const contactRouter = require('./routes/contact');
 const gameStorage = require('./storage');
 
 const app = express();
@@ -67,6 +68,17 @@ const authLimiter = rateLimit({
   message: { message: 'Demasiados intentos. Intenta nuevamente en 15 minutos.' },
 });
 
+// Rate limiting para el formulario de contacto: 5 envíos por IP en 15 min.
+// Más estricto que el global porque un humano no contacta más de eso en ese lapso.
+// El honeypot en el router es la segunda capa (descarta bots sin gastar cuota Resend).
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados mensajes. Intenta nuevamente en unos minutos.' },
+});
+
 // Routes
 app.use('/api', healthRouter);
 app.use('/api/auth', authLimiter, authRouter);
@@ -84,6 +96,7 @@ app.use('/api/progress', progressRouter);
 app.use('/api/link', linkRouter);
 app.use('/api/professionals', directoryRouter);
 app.use('/api/messages', messagesRouter);
+app.use('/api/contact', contactLimiter, contactRouter);
 
 // MongoDB connection — non-fatal: app stays up even if DB is unavailable
 const mongoUri = process.env.MONGODB_URI;
