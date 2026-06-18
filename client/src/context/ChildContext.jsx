@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { API_URL } from '../config';
+import { apiFetch } from '../lib/apiFetch.js';
 
 const ChildContext = createContext(null);
 
@@ -11,15 +11,7 @@ export function ChildProvider({ children }) {
 
   const loadChildren = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-      if (!token) return;
-
-      const res = await fetch(`${API_URL}/api/children`, {
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'application/json',
-        },
-      });
+      const res = await apiFetch('/api/children');
 
       if (!res.ok) throw new Error('Error al cargar niños');
       const data = await res.json();

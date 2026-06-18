@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 function StatusBadge({ status }) {
   const configs = {
@@ -34,13 +34,7 @@ export default function SubscriptionStatus() {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('auth_token');
-      const res = await fetch(`${API_URL}/api/subscription/status`, {
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'application/json',
-        },
-      });
+      const res = await apiFetch('/api/subscription/status');
       if (!res.ok) throw new Error('Error al obtener el estado de suscripción');
       setData(await res.json());
     } catch (err) {

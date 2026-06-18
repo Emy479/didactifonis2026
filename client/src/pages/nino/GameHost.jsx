@@ -19,7 +19,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EVENT_TYPES, CONTRACT_VERSION, EVENTS_INGEST_CAP } from '@didactifonis/contract';
-import { API_URL } from '../../config';
+import { API_URL } from '../../config'; // conservado para handleSubmitResults (endpoint sin Authorization por contrato)
+import { apiFetch } from '../../lib/apiFetch.js';
 
 /**
  * Fallback de desarrollo (DEP-1 resuelta).
@@ -63,13 +64,8 @@ function useGameSession(assignmentId) {
   const startSession = useCallback(async () => {
     setPhase(PHASE.LOADING);
     try {
-      const token = localStorage.getItem('auth_token');
-      const res = await fetch(`${API_URL}/api/activities/sessions`, {
+      const res = await apiFetch('/api/activities/sessions', {
         method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ assignmentId }),
       });
 

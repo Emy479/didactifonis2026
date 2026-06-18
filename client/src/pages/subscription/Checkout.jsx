@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 function formatCLP(amount) {
   return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
@@ -18,13 +18,7 @@ export default function Checkout() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
-        const res = await fetch(`${API_URL}/api/payment/plans`, {
-          headers: {
-            Authorization: 'Bearer ' + token,
-            'Content-Type': 'application/json',
-          },
-        });
+        const res = await apiFetch('/api/payment/plans');
         if (!res.ok) throw new Error('Error al cargar los planes');
         const json = await res.json();
         setPlans(json.plans ?? json);
@@ -43,13 +37,8 @@ export default function Checkout() {
     setSubmitError(null);
     try {
       sessionStorage.setItem('pending_plan', selectedPlan.id);
-      const token = localStorage.getItem('auth_token');
-      const res = await fetch(`${API_URL}/api/payment/checkout`, {
+      const res = await apiFetch('/api/payment/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ plan: selectedPlan.id }),
       });
       const data = await res.json();
