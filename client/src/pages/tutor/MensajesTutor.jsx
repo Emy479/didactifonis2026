@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { API_URL } from '../../config';
 
+const POLL_INTERVAL = 8000;
+
 function getAuthHeaders() {
   const token = localStorage.getItem('auth_token');
   return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
@@ -115,6 +117,7 @@ function HiloMensajes({ convSeleccionada, userId }) {
 
   const invitationId = convSeleccionada?.invitation?._id;
 
+  // Carga inicial: muestra el spinner de "Cargando mensajes..."
   const cargarMensajes = useCallback(async () => {
     if (!invitationId) return;
     setCargando(true);
@@ -131,6 +134,33 @@ function HiloMensajes({ convSeleccionada, userId }) {
     }
   }, [invitationId]);
 
+  // Refresh silencioso: sin spinner, sin resetear input.
+  // Solo actualiza el estado si llegaron mensajes nuevos (evita tirón de scroll
+  // y re-renders innecesarios cuando no hay cambios).
+  const refrescarMensajes = useCallback(async () => {
+    if (!invitationId) return;
+    if (document.hidden) return; // pausa cuando la pestaña está oculta
+    try {
+      const res = await fetch(`${API_URL}/api/messages/${invitationId}`, { headers: getAuthHeaders() });
+      if (!res.ok) return; // fallo silencioso en polls
+      const data = await res.json();
+      if (!Array.isArray(data)) return;
+      setMensajes((prev) => {
+        // Compara longitud y _id del último mensaje para decidir si actualizar
+        if (
+          data.length === prev.length &&
+          (data.length === 0 || data[data.length - 1]._id === prev[prev.length - 1]._id)
+        ) {
+          return prev; // sin cambio: devuelve la misma referencia, evita re-render
+        }
+        return data;
+      });
+    } catch {
+      // fallo silencioso: no interrumpe la UX del usuario
+    }
+  }, [invitationId]);
+
+  // Carga inicial al abrir una conversación
   useEffect(() => {
     setMensajes([]);
     setInputTexto('');
@@ -138,6 +168,15 @@ function HiloMensajes({ convSeleccionada, userId }) {
     cargarMensajes();
   }, [cargarMensajes]);
 
+  // Polling: un solo intervalo activo por conversación, limpiado al cambiar de hilo
+  useEffect(() => {
+    if (!invitationId) return;
+    const id = setInterval(refrescarMensajes, POLL_INTERVAL);
+    return () => clearInterval(id);
+  }, [invitationId, refrescarMensajes]);
+
+  // Scroll al fondo cuando llegan mensajes nuevos (el efecto no se dispara si
+  // setMensajes devolvió la misma referencia en el refresh silencioso)
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [mensajes]);
@@ -267,6 +306,7 @@ export default function MensajesTutor() {
   const [error, setError] = useState(null);
   const [convSeleccionada, setConvSeleccionada] = useState(null);
 
+  // Carga inicial: activa el spinner de "Cargando conversaciones..."
   const cargarConversaciones = useCallback(async () => {
     setCargando(true);
     setError(null);
@@ -282,9 +322,40 @@ export default function MensajesTutor() {
     }
   }, []);
 
+  // Refresh silencioso de conversaciones: actualiza badges y último mensaje
+  // sin activar el spinner ni provocar parpadeo en la lista.
+  const refrescarConversaciones = useCallback(async () => {
+    if (document.hidden) return; // pausa cuando la pestaña está oculta
+    try {
+      const res = await fetch(`${API_URL}/api/messages/conversations`, { headers: getAuthHeaders() });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!Array.isArray(data)) return;
+      setConversaciones((prev) => {
+        // Compara cantidad de conversaciones y el _id del último mensaje de la primera
+        // (proxy barato de "algo cambió") para evitar re-renders innecesarios.
+        const primerUltimoId = data[0]?.ultimoMensaje?._id;
+        const prevPrimerUltimoId = prev[0]?.ultimoMensaje?._id;
+        if (data.length === prev.length && primerUltimoId === prevPrimerUltimoId) {
+          return prev;
+        }
+        return data;
+      });
+    } catch {
+      // fallo silencioso
+    }
+  }, []);
+
+  // Carga inicial
   useEffect(() => {
     cargarConversaciones();
   }, [cargarConversaciones]);
+
+  // Polling de conversaciones (badges, último mensaje)
+  useEffect(() => {
+    const id = setInterval(refrescarConversaciones, POLL_INTERVAL);
+    return () => clearInterval(id);
+  }, [refrescarConversaciones]);
 
   return (
     <div className="h-full flex flex-col">
