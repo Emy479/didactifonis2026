@@ -10,8 +10,7 @@ import ProgresoTutor from './ProgresoTutor';
 import LogrosTutor from './LogrosTutor';
 import VincularProfesional from './VincularProfesional';
 import MensajesTutor from './MensajesTutor';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../../config';
 
 export default function DashboardTutor() {
   const { user, logout } = useAuth();

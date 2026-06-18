@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChild } from '../../context/ChildContext';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../../config';
 
 // El niño no tiene cuenta propia ni usa AuthContext.
 // Accede siempre desde la sesión del tutor.

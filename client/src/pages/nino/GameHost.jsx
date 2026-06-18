@@ -19,8 +19,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EVENT_TYPES, CONTRACT_VERSION, EVENTS_INGEST_CAP } from '@didactifonis/contract';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../../config';
 
 /**
  * Fallback de desarrollo (DEP-1 resuelta).

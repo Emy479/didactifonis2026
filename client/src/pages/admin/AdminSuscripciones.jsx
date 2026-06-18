@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../../config';
 
 const STATUS_LABEL = { active: 'Activa', trial: 'Prueba', expired: 'Expirada', none: 'Sin plan' };
 const STATUS_COLOR = {

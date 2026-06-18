@@ -7,8 +7,7 @@ import ActividadesPro from './ActividadesPro';
 import TerapiasPro from './TerapiasPro';
 import InvitacionesPro from './InvitacionesPro';
 import MensajesPro from './MensajesPro';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../../config';
 
 const NAV_ITEMS = [
   { id: 'inicio',         label: 'Inicio',        icon: '▦' },

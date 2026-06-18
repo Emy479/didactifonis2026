@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useChild } from '../../context/ChildContext';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../../config';
 
 // Mapeo de áreas de progreso a etiquetas UI
 const AREAS_CONFIG = [

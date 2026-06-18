@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useChild } from '../../context/ChildContext';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../../config';
 
 const TYPE_COLORS = {
   articulation: 'bg-accent/20 text-accent',
