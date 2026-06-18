@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const STATUS_BADGE = {
   pending: 'bg-energy/20 text-energy',
@@ -65,11 +65,7 @@ export default function TareasTutor({ selectedChildId }) {
     const fetchAssignments = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('auth_token');
-        const res = await fetch(
-          `${API_URL}/api/assignments?childId=${selectedChildId}`,
-          { headers: { Authorization: 'Bearer ' + token } }
-        );
+        const res = await apiFetch(`/api/assignments?childId=${selectedChildId}`);
         if (!res.ok) throw new Error();
         const data = await res.json();
         setAssignments(Array.isArray(data) ? data : []);

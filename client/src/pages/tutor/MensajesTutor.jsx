@@ -1,13 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const POLL_INTERVAL = 8000;
-
-function getAuthHeaders() {
-  const token = localStorage.getItem('auth_token');
-  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-}
 
 function fechaRelativa(iso) {
   if (!iso) return '';
@@ -131,7 +126,7 @@ function HiloMensajes({ convSeleccionada, userId }) {
     setCargando(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/api/messages/${invitationId}`, { headers: getAuthHeaders() });
+      const res = await apiFetch(`/api/messages/${invitationId}`);
       if (!res.ok) throw new Error('Error al cargar mensajes');
       const data = await res.json();
       setMensajes(Array.isArray(data) ? data : []);
@@ -149,7 +144,7 @@ function HiloMensajes({ convSeleccionada, userId }) {
     if (!invitationId) return;
     if (document.hidden) return; // pausa cuando la pestaña está oculta
     try {
-      const res = await fetch(`${API_URL}/api/messages/${invitationId}`, { headers: getAuthHeaders() });
+      const res = await apiFetch(`/api/messages/${invitationId}`);
       if (!res.ok) return; // fallo silencioso en polls
       const data = await res.json();
       if (!Array.isArray(data)) return;
@@ -196,9 +191,9 @@ function HiloMensajes({ convSeleccionada, userId }) {
     const mensajePrevio = content;
     setInputTexto('');
     try {
-      const res = await fetch(`${API_URL}/api/messages`, {
+      const res = await apiFetch('/api/messages', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ invitationId, content }),
       });
       if (!res.ok) {
@@ -319,7 +314,7 @@ export default function MensajesTutor() {
     setCargando(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/api/messages/conversations`, { headers: getAuthHeaders() });
+      const res = await apiFetch('/api/messages/conversations');
       if (!res.ok) throw new Error('Error al cargar conversaciones');
       const data = await res.json();
       setConversaciones(Array.isArray(data) ? data : []);
@@ -335,7 +330,7 @@ export default function MensajesTutor() {
   const refrescarConversaciones = useCallback(async () => {
     if (document.hidden) return; // pausa cuando la pestaña está oculta
     try {
-      const res = await fetch(`${API_URL}/api/messages/conversations`, { headers: getAuthHeaders() });
+      const res = await apiFetch('/api/messages/conversations');
       if (!res.ok) return;
       const data = await res.json();
       if (!Array.isArray(data)) return;
