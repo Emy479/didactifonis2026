@@ -47,6 +47,36 @@ class LocalDiskStorage {
     if (fs.existsSync(dest)) fs.rmSync(dest, { recursive: true, force: true });
   }
 
+  /**
+   * sweepOrphans() — borra entradas cuyo basename empieza por '.tmp-' o '.old-'.
+   * Se invoca al arrancar para limpiar carpetas que quedaron huérfanas por
+   * procesos interrumpidos (crash durante upload/replace).
+   * Idempotente: no lanza si baseDir está vacío o no existe.
+   * @returns {number} cantidad de entradas borradas (útil para log).
+   */
+  sweepOrphans() {
+    let removed = 0;
+    let entries;
+    try {
+      entries = fs.readdirSync(this.baseDir);
+    } catch {
+      // baseDir inexistente o ilegible: nada que barrer
+      return 0;
+    }
+    for (const name of entries) {
+      if (name.startsWith('.tmp-') || name.startsWith('.old-')) {
+        try {
+          fs.rmSync(path.join(this.baseDir, name), { recursive: true, force: true });
+          removed++;
+        } catch (err) {
+          // log mínimo pero no propaga; el servidor debe seguir arrancando
+          console.warn(`[storage] sweepOrphans: no se pudo borrar ${name}: ${err.message}`);
+        }
+      }
+    }
+    return removed;
+  }
+
   root() {
     return this.baseDir;
   }

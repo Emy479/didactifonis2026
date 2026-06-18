@@ -80,3 +80,32 @@ test('delete elimina la carpeta del juego', () => {
   storage.delete('act1');
   assert.ok(!fs.existsSync(dest));
 });
+
+test('sweepOrphans borra .tmp-* y .old-*, deja carpetas normales intactas y retorna 2', () => {
+  const baseDir = freshBase();
+  const storage = new LocalDiskStorage({ baseDir, baseUrl: 'http://x' });
+
+  // siembra huérfanos
+  const tmpDir = path.join(baseDir, '.tmp-x');
+  const oldDir = path.join(baseDir, '.old-y');
+  fs.mkdirSync(tmpDir);
+  fs.mkdirSync(oldDir);
+
+  // carpeta normal (bundle real)
+  const normalDir = path.join(baseDir, 'act1');
+  fs.mkdirSync(normalDir);
+  fs.writeFileSync(path.join(normalDir, 'index.html'), 'ok');
+
+  const removed = storage.sweepOrphans();
+
+  assert.strictEqual(removed, 2, 'debe reportar 2 entradas borradas');
+  assert.ok(!fs.existsSync(tmpDir), '.tmp-x debe haberse borrado');
+  assert.ok(!fs.existsSync(oldDir), '.old-y debe haberse borrado');
+  assert.ok(fs.existsSync(normalDir), 'act1 debe seguir intacta');
+});
+
+test('sweepOrphans retorna 0 cuando baseDir está vacío', () => {
+  const baseDir = freshBase();
+  const storage = new LocalDiskStorage({ baseDir, baseUrl: 'http://x' });
+  assert.strictEqual(storage.sweepOrphans(), 0);
+});

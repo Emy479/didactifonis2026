@@ -95,6 +95,16 @@ if (mongoUri) {
   console.warn('MONGODB_URI no definida — servidor iniciado sin base de datos');
 }
 
+// M3: barrer huérfanos .tmp-* / .old-* antes de arrancar.
+// Un crash durante upload/replace puede dejar esas carpetas; se limpian al inicio.
+// Fallo no fatal: si el sweep lanza, se loguea y el server sigue arrancando.
+try {
+  const orphansRemoved = gameStorage.sweepOrphans();
+  console.log(`[startup] sweep de bundles huérfanos: ${orphansRemoved} borrados`);
+} catch (sweepErr) {
+  console.warn('[startup] sweep de bundles falló (no fatal):', sweepErr.message);
+}
+
 const PORT = process.env.PORT || 3001;
 const GAME_PUBLIC_PORT = process.env.GAME_PUBLIC_PORT || 3002;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';

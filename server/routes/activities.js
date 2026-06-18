@@ -3,10 +3,23 @@ const fs = require('fs');
 const { Router } = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const rateLimit = require('express-rate-limit');
 const Activity = require('../models/Activity');
 const { protect, requireRole, requireActiveSubscription } = require('../middleware/auth');
 const storage = require('../storage');
 const { extractZipToDir, loadAndValidateManifest, BundleError } = require('../activities/bundleArchive');
+
+// M4: rate-limit dedicado para endpoints de upload de bundles.
+// El global (100/15min) es demasiado permisivo para subidas de archivos grandes.
+// 20 subidas por IP cada 15 minutos es suficiente para un admin real y frena DoS
+// por subidas repetidas que agoten CPU/disco con extracción de ZIPs.
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiadas subidas. Intenta nuevamente en 15 minutos.' },
+});
 
 const router = Router();
 
@@ -147,7 +160,7 @@ router.put('/:id', protect, requireRole('admin'), async (req, res, next) => {
 });
 
 // POST /upload — subir bundle ZIP y crear actividad (solo admin)
-router.post('/upload', protect, requireRole('admin'), upload.single('bundle'), async (req, res, next) => {
+router.post('/upload', uploadLimiter, protect, requireRole('admin'), upload.single('bundle'), async (req, res, next) => {
   if (!req.file) {
     return res.status(400).json({ message: 'Falta el archivo bundle (.zip).' });
   }
@@ -202,7 +215,7 @@ router.post('/upload', protect, requireRole('admin'), upload.single('bundle'), a
 });
 
 // PUT /:id/bundle — reemplazar el bundle de una actividad existente (solo admin)
-router.put('/:id/bundle', protect, requireRole('admin'), upload.single('bundle'), async (req, res, next) => {
+router.put('/:id/bundle', uploadLimiter, protect, requireRole('admin'), upload.single('bundle'), async (req, res, next) => {
   if (!req.file) {
     return res.status(400).json({ message: 'Falta el archivo bundle (.zip).' });
   }
