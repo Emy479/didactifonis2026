@@ -55,7 +55,7 @@ function validateTherapyFields(fields, { partial = false } = {}) {
   }
 
   // ── status (solo PATCH) ───────────────────────────────────────────────────
-  if (fields.status !== undefined) {
+  if (partial && fields.status !== undefined) {
     if (!VALID_STATUSES.includes(fields.status)) {
       return {
         ok: false,
@@ -66,7 +66,7 @@ function validateTherapyFields(fields, { partial = false } = {}) {
   }
 
   // ── sessions (solo PATCH) ─────────────────────────────────────────────────
-  if (fields.sessions !== undefined) {
+  if (partial && fields.sessions !== undefined) {
     const s = fields.sessions;
     if (!Number.isInteger(s) || s < 0) {
       return { ok: false, message: 'sessions debe ser un entero ≥ 0.' };

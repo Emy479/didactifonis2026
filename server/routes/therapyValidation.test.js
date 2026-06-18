@@ -40,6 +40,7 @@ test('POST sin name → error', () => {
   const r = post({ therapeuticGoal: 'algo' });
   assert.equal(r.ok, false);
   assert.ok(r.message.length > 0);
+  assert.match(r.message, /name|nombre/i);
 });
 
 test('POST name = null → error', () => {
@@ -196,4 +197,42 @@ test('PATCH con startDate inválida → ok (campo ignorado en partial)', () => {
   const r = patch({ startDate: 'basura' });
   assert.equal(r.ok, true);
   assert.equal(r.value.startDate, undefined);
+});
+
+// ── POST ignora status y sessions (Important fix) ─────────────────────────
+test('POST con status inválido → ok (status ignorado en modo POST)', () => {
+  const r = post({ name: 'x', status: 'pendiente' });
+  assert.equal(r.ok, true);
+  assert.equal(r.value.status, undefined);
+});
+
+test('POST con status válido → ok pero status NO aparece en value', () => {
+  const r = post({ name: 'x', status: 'active' });
+  assert.equal(r.ok, true);
+  assert.equal(r.value.status, undefined);
+});
+
+test('POST con sessions inválidas → ok (sessions ignorado en modo POST)', () => {
+  const r = post({ name: 'x', sessions: -1 });
+  assert.equal(r.ok, true);
+  assert.equal(r.value.sessions, undefined);
+});
+
+test('POST con sessions válidas → ok pero sessions NO aparece en value', () => {
+  const r = post({ name: 'x', sessions: 5 });
+  assert.equal(r.ok, true);
+  assert.equal(r.value.sessions, undefined);
+});
+
+// ── PATCH sigue validando status y sessions (regresión) ───────────────────
+test('PATCH status inválido sigue fallando con partial:true', () => {
+  const r = patch({ status: 'desconocido' });
+  assert.equal(r.ok, false);
+  assert.match(r.message, /estado/i);
+});
+
+test('PATCH sessions inválidas siguen fallando con partial:true', () => {
+  const r = patch({ sessions: -5 });
+  assert.equal(r.ok, false);
+  assert.match(r.message, /entero/i);
 });
