@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useChild } from '../../context/ChildContext';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const CATEGORY_CONFIG = {
   inicio: { label: 'Inicio', color: 'text-accent' },
@@ -16,13 +16,10 @@ export default function LogrosTutor() {
   const [loading, setLoading] = useState(false);
   const [filterCategoria, setFilterCategoria] = useState('todos');
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   useEffect(() => {
     if (!activeChild?._id) return;
     setLoading(true);
-    fetch(`${API_URL}/api/progress/${activeChild._id}/achievements`, { headers })
+    apiFetch(`/api/progress/${activeChild._id}/achievements`)
       .then((r) => r.ok ? r.json() : null)
       .then((d) => setData(d))
       .catch(() => setData(null))

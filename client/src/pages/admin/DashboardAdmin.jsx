@@ -8,7 +8,7 @@ import AdminNinos from './AdminNinos';
 import AdminActividades from './AdminActividades';
 import AdminTerapias from './AdminTerapias';
 import AdminSuscripciones from './AdminSuscripciones';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const NAV_ITEMS = [
   { id: 'inicio',        label: 'Inicio',           icon: '▦' },
@@ -36,12 +36,10 @@ export default function DashboardAdmin() {
 
   useEffect(() => {
     if (currentView !== 'inicio') return;
-    const token = localStorage.getItem('auth_token');
-    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
     Promise.all([
-      fetch(`${API_URL}/api/admin/stats`, { headers }).then((r) => r.json()),
-      fetch(`${API_URL}/api/admin/users?limit=5`, { headers }).then((r) => r.json()),
+      apiFetch('/api/admin/stats').then((r) => r.json()),
+      apiFetch('/api/admin/users?limit=5').then((r) => r.json()),
     ])
       .then(([s, u]) => {
         setStats(s);

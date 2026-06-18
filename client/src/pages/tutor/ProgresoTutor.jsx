@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useChild } from '../../context/ChildContext';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // Mapeo de áreas de progreso a etiquetas UI
 const AREAS_CONFIG = [
@@ -16,14 +16,11 @@ export default function ProgresoTutor() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   useEffect(() => {
     if (!activeChild?._id) return;
     setLoading(true);
     setError('');
-    fetch(`${API_URL}/api/progress/${activeChild._id}`, { headers })
+    apiFetch(`/api/progress/${activeChild._id}`)
       .then((r) => {
         if (!r.ok) throw new Error('No se pudo cargar el progreso');
         return r.json();

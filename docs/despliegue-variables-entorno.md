@@ -13,8 +13,10 @@
 | `NODE_ENV` | sí | `production` |
 | `PORT` | sí | Puerto de la API (ej. 3001) |
 | `MONGODB_URI` | sí | Cadena de conexión a MongoDB |
-| `JWT_SECRET` | sí | Secreto de firma JWT (largo y aleatorio) |
-| `JWT_EXPIRES_IN` | no | Default `7d` |
+| `JWT_SECRET` | sí | Secreto de firma JWT del access token (largo y aleatorio, ≥ 32 chars) |
+| `ACCESS_TOKEN_TTL` | no | Vida del access JWT. Default `15m`. Formato: `<n><s\|m\|h\|d>` |
+| `REFRESH_TOKEN_TTL` | no | Vida del refresh token (cookie httpOnly + BD). Default `14d`. |
+| `JWT_EXPIRES_IN` | no | **DEPRECADO** — reemplazado por `ACCESS_TOKEN_TTL`. Ignorado si `ACCESS_TOKEN_TTL` está definido. Eliminar en próxima limpieza de config. |
 | `CORS_ORIGIN` | sí | Origen del cliente permitido por CORS (ej. `https://app.midominio.cl`) |
 | `DEMO_MODE` | sí | `false` en producción (nunca bypassear pago en prod) |
 | `PAYMENT_PROVIDER` | sí | `mock` hasta integrar Transbank (ver decisiones D2) |

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const TIPO_LABEL = {
   fonema: 'Fonema', silaba: 'Sílaba', palabra: 'Palabra',
@@ -32,13 +32,10 @@ export default function AdminActividades() {
   const [errorDetails, setErrorDetails] = useState([]);
   const LIMIT = 15;
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/activities?page=${page}&limit=${LIMIT}`, { headers });
+      const res = await apiFetch(`/api/activities?page=${page}&limit=${LIMIT}`);
       const data = await res.json();
       setActivities(Array.isArray(data) ? data : (data.activities || []));
       setTotal(Array.isArray(data) ? data.length : (data.total || data.length || 0));
@@ -93,9 +90,9 @@ export default function AdminActividades() {
         fd.append('difficultyLevel', String(form.difficultyLevel));
         fd.append('therapeuticGoal', form.therapeuticGoal || '');
         fd.append('availableToTutors', String(form.availableToTutors));
-        const res = await fetch(`${API_URL}/api/activities/upload`, {
+        const res = await apiFetch('/api/activities/upload', {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token}` }, // NO fijar Content-Type: el navegador pone el boundary
+          // NO fijar Content-Type: el navegador pone el boundary automáticamente con FormData
           body: fd,
         });
         if (!res.ok) {
@@ -118,9 +115,8 @@ export default function AdminActividades() {
           availableToTutors: form.availableToTutors,
           thumbnailUrl: form.thumbnailUrl || null,
         };
-        const res = await fetch(`${API_URL}/api/activities/${editTarget._id}`, {
+        const res = await apiFetch(`/api/activities/${editTarget._id}`, {
           method: 'PUT',
-          headers,
           body: JSON.stringify(body),
         });
         if (!res.ok) {
@@ -145,9 +141,9 @@ export default function AdminActividades() {
     try {
       const fd = new FormData();
       fd.append('bundle', file);
-      const res = await fetch(`${API_URL}/api/activities/${editTarget._id}/bundle`, {
+      const res = await apiFetch(`/api/activities/${editTarget._id}/bundle`, {
         method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
+        // NO fijar Content-Type: FormData pone el boundary automáticamente
         body: fd,
       });
       if (!res.ok) {

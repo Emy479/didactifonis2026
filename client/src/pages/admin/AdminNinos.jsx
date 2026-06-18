@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const AVATAR_MAP = {
   'nino-1': { emoji: '👦', label: 'Niño' },
@@ -23,13 +23,10 @@ export default function AdminNinos() {
   const [page, setPage] = useState(1);
   const LIMIT = 15;
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/admin/children?page=${page}&limit=${LIMIT}`, { headers });
+      const res = await apiFetch(`/api/admin/children?page=${page}&limit=${LIMIT}`);
       if (res.ok) {
         const data = await res.json();
         setChildren(data.children || []);

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const ROL_LABEL = { tutor: 'Tutor', profesional: 'Profesional', admin: 'Admin' };
 const ROL_COLOR = {
@@ -17,16 +17,13 @@ export default function AdminUsuarios() {
   const [page, setPage] = useState(1);
   const LIMIT = 15;
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const roleParam = filterRole ? `&role=${filterRole}` : '';
       const [usersRes, statsRes] = await Promise.all([
-        fetch(`${API_URL}/api/admin/users?page=${page}&limit=${LIMIT}${roleParam}`, { headers }),
-        fetch(`${API_URL}/api/admin/stats`, { headers }),
+        apiFetch(`/api/admin/users?page=${page}&limit=${LIMIT}${roleParam}`),
+        apiFetch('/api/admin/stats'),
       ]);
       const usersData = await usersRes.json();
       const statsData = await statsRes.json();
@@ -44,9 +41,9 @@ export default function AdminUsuarios() {
 
   const toggleStatus = async (userId, currentStatus) => {
     try {
-      await fetch(`${API_URL}/api/admin/users/${userId}/status`, {
+      await apiFetch(`/api/admin/users/${userId}/status`, {
         method: 'PATCH',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !currentStatus }),
       });
       fetchData();

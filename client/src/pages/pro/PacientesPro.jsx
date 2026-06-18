@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const AVATAR_EMOJI = {
   'nino-1': '👦', 'nino-2': '🧒', 'nina-1': '👧', 'nina-2': '🧑',
@@ -16,11 +16,8 @@ export default function PacientesPro() {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   useEffect(() => {
-    fetch(`${API_URL}/api/professional/patients`, { headers })
+    apiFetch('/api/professional/patients')
       .then((r) => r.ok ? r.json() : [])
       .then((data) => setPatients(Array.isArray(data) ? data : []))
       .catch(() => setPatients([]))

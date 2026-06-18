@@ -10,7 +10,7 @@ import ProgresoTutor from './ProgresoTutor';
 import LogrosTutor from './LogrosTutor';
 import VincularProfesional from './VincularProfesional';
 import MensajesTutor from './MensajesTutor';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 export default function DashboardTutor() {
   const { user, logout } = useAuth();
@@ -24,13 +24,7 @@ export default function DashboardTutor() {
   useEffect(() => {
     const fetchSubscription = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
-        const res = await fetch(`${API_URL}/api/subscription/status`, {
-          headers: {
-            Authorization: 'Bearer ' + token,
-            'Content-Type': 'application/json',
-          },
-        });
+        const res = await apiFetch('/api/subscription/status');
         if (!res.ok) return;
         const data = await res.json();
         if (data.status === 'trial' && data.daysRemaining <= 5) {
@@ -56,13 +50,9 @@ export default function DashboardTutor() {
   const handleAddChild = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('auth_token');
-      const res = await fetch(`${API_URL}/api/children`, {
+      const res = await apiFetch('/api/children', {
         method: 'POST',
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 

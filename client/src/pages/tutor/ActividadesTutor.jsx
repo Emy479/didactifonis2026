@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useChild } from '../../context/ChildContext';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const TYPE_COLORS = {
   articulation: 'bg-accent/20 text-accent',
@@ -57,10 +57,7 @@ export default function ActividadesTutor({ selectedChildId }) {
     const fetchActivities = async () => {
       setLoadingActivities(true);
       try {
-        const token = localStorage.getItem('auth_token');
-        const res = await fetch(`${API_URL}/api/activities`, {
-          headers: { Authorization: 'Bearer ' + token },
-        });
+        const res = await apiFetch('/api/activities');
         if (!res.ok) throw new Error('Error al cargar actividades');
         const data = await res.json();
         setActivities(data);
@@ -78,11 +75,9 @@ export default function ActividadesTutor({ selectedChildId }) {
     if (!selectedChildId) return;
     setLoadingAssignments(true);
     try {
-      const token = localStorage.getItem('auth_token');
       const statusParam = status === 'asignadas' ? 'pending' : 'completed';
-      const res = await fetch(
-        `${API_URL}/api/assignments?childId=${selectedChildId}&status=${statusParam}`,
-        { headers: { Authorization: 'Bearer ' + token } }
+      const res = await apiFetch(
+        `/api/assignments?childId=${selectedChildId}&status=${statusParam}`
       );
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -122,15 +117,11 @@ export default function ActividadesTutor({ selectedChildId }) {
     setAssigning(true);
     setModalError('');
     try {
-      const token = localStorage.getItem('auth_token');
       const body = { activityId: modalActivity._id, childId: selectedChildId };
       if (dueDate) body.dueDate = dueDate;
-      const res = await fetch(`${API_URL}/api/assignments`, {
+      const res = await apiFetch('/api/assignments', {
         method: 'POST',
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
       if (res.status === 403) {

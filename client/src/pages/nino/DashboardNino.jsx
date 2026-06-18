@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChild } from '../../context/ChildContext';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // El niño no tiene cuenta propia ni usa AuthContext.
 // Accede siempre desde la sesión del tutor.
@@ -23,10 +23,8 @@ export default function DashboardNino() {
     const fetchAssignments = async () => {
       setLoadingAssignments(true);
       try {
-        const token = localStorage.getItem('auth_token');
-        const res = await fetch(
-          `${API_URL}/api/assignments?childId=${activeChild._id}&status=pending`,
-          { headers: { Authorization: 'Bearer ' + token } }
+        const res = await apiFetch(
+          `/api/assignments?childId=${activeChild._id}&status=pending`
         );
         if (!res.ok) throw new Error();
         const data = await res.json();

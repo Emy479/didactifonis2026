@@ -7,7 +7,7 @@ import ActividadesPro from './ActividadesPro';
 import TerapiasPro from './TerapiasPro';
 import InvitacionesPro from './InvitacionesPro';
 import MensajesPro from './MensajesPro';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const NAV_ITEMS = [
   { id: 'inicio',         label: 'Inicio',        icon: '▦' },
@@ -31,10 +31,7 @@ export default function DashboardPro() {
   useEffect(() => {
     const fetchSubscription = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
-        const res = await fetch(`${API_URL}/api/subscription/status`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiFetch('/api/subscription/status');
         if (!res.ok) return;
         const data = await res.json();
         if (data.status === 'trial' && data.daysRemaining <= 5) {
@@ -137,13 +134,10 @@ function ProInicio({ user, setCurrentView }) {
   const [activities, setActivities] = useState([]);
   const [loadingPatients, setLoadingPatients] = useState(true);
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   useEffect(() => {
     Promise.all([
-      fetch(`${API_URL}/api/professional/patients`, { headers }).then((r) => r.ok ? r.json() : []),
-      fetch(`${API_URL}/api/activities`, { headers }).then((r) => r.ok ? r.json() : []),
+      apiFetch('/api/professional/patients').then((r) => r.ok ? r.json() : []),
+      apiFetch('/api/activities').then((r) => r.ok ? r.json() : []),
     ]).then(([p, a]) => {
       setPatients(Array.isArray(p) ? p : []);
       setActivities(Array.isArray(a) ? a : []);

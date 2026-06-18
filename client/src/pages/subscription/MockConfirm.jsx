@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 export default function MockConfirm() {
   const navigate = useNavigate();
@@ -15,13 +15,8 @@ export default function MockConfirm() {
     setSubmitting(true);
     setError(null);
     try {
-      const authToken = localStorage.getItem('auth_token');
-      const res = await fetch(`${API_URL}/api/payment/confirm`, {
+      const res = await apiFetch('/api/payment/confirm', {
         method: 'POST',
-        headers: {
-          Authorization: 'Bearer ' + authToken,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ token, plan }),
       });
       const data = await res.json();

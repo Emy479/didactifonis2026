@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_URL } from '../../config';
-
-function getAuthHeaders() {
-  const token = localStorage.getItem('auth_token');
-  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-}
+import { apiFetch } from '../../lib/apiFetch.js';
 
 // ── Tab: Ingresar invitacion ──────────────────────────────────────────────────
 
@@ -20,7 +15,7 @@ function TabIngresarInvitacion() {
   const cargarHijos = useCallback(async () => {
     setCargandoHijos(true);
     try {
-      const res = await fetch(`${API_URL}/api/children`, { headers: getAuthHeaders() });
+      const res = await apiFetch('/api/children');
       if (!res.ok) throw new Error('Error al cargar hijos');
       const data = await res.json();
       setHijos(Array.isArray(data) ? data : []);
@@ -48,9 +43,9 @@ function TabIngresarInvitacion() {
     }
     setEnviando(true);
     try {
-      const res = await fetch(`${API_URL}/api/link/accept`, {
+      const res = await apiFetch('/api/link/accept', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: tokenInput.trim(), consentVersion: '1.0' }),
       });
       const data = await res.json();
@@ -154,8 +149,8 @@ function TabBuscarProfesional() {
     setError(null);
     try {
       const [resPros, resHijos] = await Promise.all([
-        fetch(`${API_URL}/api/directory`, { headers: getAuthHeaders() }),
-        fetch(`${API_URL}/api/children`, { headers: getAuthHeaders() }),
+        apiFetch('/api/directory'),
+        apiFetch('/api/children'),
       ]);
       if (!resPros.ok) throw new Error('Error al cargar profesionales');
       const [dataPros, dataHijos] = await Promise.all([resPros.json(), resHijos.ok ? resHijos.json() : []]);
@@ -193,9 +188,9 @@ function TabBuscarProfesional() {
     setEnviando(true);
     setErrorModal(null);
     try {
-      const res = await fetch(`${API_URL}/api/directory/request`, {
+      const res = await apiFetch('/api/directory/request', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ professionalId: proSeleccionado._id, childId: childIdSeleccionado }),
       });
       const data = await res.json();
@@ -320,7 +315,7 @@ function TabVinculosActivos() {
     setCargando(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/api/children`, { headers: getAuthHeaders() });
+      const res = await apiFetch('/api/children');
       if (!res.ok) throw new Error('Error al cargar datos');
       const data = await res.json();
       setHijos(Array.isArray(data) ? data : []);
@@ -339,9 +334,8 @@ function TabVinculosActivos() {
     if (!window.confirm('¿Confirmas que deseas revocar este vinculo?')) return;
     setRevocando((prev) => ({ ...prev, [key]: true }));
     try {
-      const res = await fetch(`${API_URL}/api/link/revoke/${childId}/${professionalId}`, {
+      const res = await apiFetch(`/api/link/revoke/${childId}/${professionalId}`, {
         method: 'DELETE',
-        headers: getAuthHeaders(),
       });
       if (!res.ok) {
         const data = await res.json();

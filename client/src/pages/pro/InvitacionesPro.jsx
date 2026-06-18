@@ -1,11 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { API_URL } from '../../config';
-
-function getAuthHeaders() {
-  const token = localStorage.getItem('auth_token');
-  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-}
+import { apiFetch } from '../../lib/apiFetch.js';
 
 function BadgeEstado({ estado }) {
   const estilos = {
@@ -69,7 +63,7 @@ function TabMisInvitaciones() {
     setCargando(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/api/link/invitations`, { headers: getAuthHeaders() });
+      const res = await apiFetch('/api/link/invitations');
       if (!res.ok) throw new Error('Error al cargar invitaciones');
       const data = await res.json();
       setInvitaciones(Array.isArray(data) ? data : []);
@@ -82,7 +76,7 @@ function TabMisInvitaciones() {
 
   const cargarPacientes = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/professional/patients`, { headers: getAuthHeaders() });
+      const res = await apiFetch('/api/professional/patients');
       if (!res.ok) throw new Error('Error al cargar pacientes');
       const data = await res.json();
       setPacientes(Array.isArray(data) ? data : []);
@@ -115,9 +109,9 @@ function TabMisInvitaciones() {
     setEnviando(true);
     setErrorModal(null);
     try {
-      const res = await fetch(`${API_URL}/api/link/invite`, {
+      const res = await apiFetch('/api/link/invite', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ childId: childIdSeleccionado }),
       });
       const data = await res.json();
@@ -284,7 +278,7 @@ function TabSolicitudesRecibidas() {
     setCargando(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/api/professionals/incoming`, { headers: getAuthHeaders() });
+      const res = await apiFetch('/api/professionals/incoming');
       if (!res.ok) throw new Error('Error al cargar solicitudes');
       const data = await res.json();
       setSolicitudes(Array.isArray(data) ? data : []);
@@ -302,9 +296,9 @@ function TabSolicitudesRecibidas() {
   const responder = async (invitationId, decision) => {
     setProcesando((prev) => ({ ...prev, [invitationId]: true }));
     try {
-      const res = await fetch(`${API_URL}/api/professionals/respond`, {
+      const res = await apiFetch('/api/professionals/respond', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ invitationId, decision }),
       });
       if (!res.ok) {

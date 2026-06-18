@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const STATUS_LABEL = { active: 'Activa', trial: 'Prueba', expired: 'Expirada', none: 'Sin plan' };
 const STATUS_COLOR = {
@@ -18,15 +18,11 @@ export default function AdminSuscripciones() {
   const [page, setPage] = useState(1);
   const LIMIT = 15;
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${API_URL}/api/admin/users?page=${page}&limit=${LIMIT}`,
-        { headers }
+      const res = await apiFetch(
+        `/api/admin/users?page=${page}&limit=${LIMIT}`
       );
       const data = await res.json();
       let all = data.users || [];
