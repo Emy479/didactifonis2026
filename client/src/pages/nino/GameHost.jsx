@@ -66,6 +66,7 @@ function useGameSession(assignmentId) {
     try {
       const res = await apiFetch('/api/activities/sessions', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ assignmentId }),
       });
 
