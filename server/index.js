@@ -96,6 +96,8 @@ if (mongoUri) {
 }
 
 const PORT = process.env.PORT || 3001;
+const GAME_PUBLIC_PORT = process.env.GAME_PUBLIC_PORT || 3002;
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 const ENV = process.env.NODE_ENV || 'development';
 
 // BAJO-2: validar API_BASE_URL al arranque.
@@ -126,23 +128,6 @@ if (process.env.DEMO_MODE === 'true' && ENV === 'production') {
   process.env.DEMO_MODE = 'false';
 }
 
-// Servido de bundles de juego subidos. Cross-origin respecto al cliente; el iframe
-// del GameHost ya aplica sandbox sin allow-same-origin. Cabeceras de seguridad +
-// sin listado de directorios + dotfiles denegados (oculta .tmp-* y .old-*).
-app.use(
-  '/games',
-  (req, res, next) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.setHeader(
-      'Content-Security-Policy',
-      "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors *"
-    );
-    next();
-  },
-  express.static(gameStorage.root(), { index: false, dotfiles: 'deny' })
-);
-
 // ── Error handler global ─────────────────────────────────────────────────────
 // Captura cualquier error enviado con next(err) desde rutas y controladores.
 // Devuelve siempre { message } en JSON, nunca HTML ni stack trace en producción.
@@ -163,4 +148,31 @@ app.use((err, req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT} [${ENV}]`);
+});
+
+// ── Servidor dedicado de bundles de juego (A1: origen separado del de la API) ──
+// Los bundles HTML/JS son contenido externo no confiable. Servirlos desde un
+// origen propio (GAME_PUBLIC_PORT) los aísla del origen de la API y evita que
+// scripts del juego puedan acceder a cookies/auth del origen API.
+// En producción GAME_PUBLIC_PORT corre detrás de un reverse-proxy que lo expone
+// como https://juegos.<dominio> (GAME_PUBLIC_ORIGIN).
+const gameApp = express();
+
+gameApp.use(
+  '/games',
+  (req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    // A2: frame-ancestors acotado al origen del cliente, no wildcard.
+    res.setHeader(
+      'Content-Security-Policy',
+      `default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors ${CLIENT_ORIGIN}`
+    );
+    next();
+  },
+  express.static(gameStorage.root(), { index: false, dotfiles: 'deny' })
+);
+
+gameApp.listen(GAME_PUBLIC_PORT, () => {
+  console.log(`Bundles de juego servidos en puerto ${GAME_PUBLIC_PORT} (origen dedicado)`);
 });
