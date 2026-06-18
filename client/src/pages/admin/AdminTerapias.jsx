@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const STATUS_LABEL = { active: 'Activa', completed: 'Completada', review: 'En revisión' };
 const STATUS_COLOR = {
@@ -16,16 +16,12 @@ export default function AdminTerapias() {
   const [filterStatus, setFilterStatus] = useState('');
   const LIMIT = 15;
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const statusParam = filterStatus ? `&status=${filterStatus}` : '';
-      const res = await fetch(
-        `${API_URL}/api/admin/therapies?page=${page}&limit=${LIMIT}${statusParam}`,
-        { headers }
+      const res = await apiFetch(
+        `/api/admin/therapies?page=${page}&limit=${LIMIT}${statusParam}`
       );
       const data = await res.json();
       setTherapies(data.therapies || []);

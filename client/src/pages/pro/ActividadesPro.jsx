@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const TIPO_LABEL = {
   fonema: 'Fonema', silaba: 'Sílaba', palabra: 'Palabra',
@@ -25,11 +25,8 @@ export default function ActividadesPro() {
   const [filterNivel, setFilterNivel] = useState('');
   const [search, setSearch] = useState('');
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   useEffect(() => {
-    fetch(`${API_URL}/api/activities`, { headers })
+    apiFetch('/api/activities')
       .then((r) => r.ok ? r.json() : [])
       .then((data) => setActivities(Array.isArray(data) ? data : []))
       .catch(() => setActivities([]))

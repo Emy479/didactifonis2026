@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 const STATUS_LABEL = { active: 'Activa', completed: 'Completada', review: 'En revisión' };
 const STATUS_COLOR = {
@@ -23,15 +23,12 @@ export default function TerapiasPro() {
   const [error, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   const fetchData = async () => {
     setLoading(true);
     try {
       const [tRes, pRes] = await Promise.all([
-        fetch(`${API_URL}/api/professional/therapies`, { headers }),
-        fetch(`${API_URL}/api/professional/patients`, { headers }),
+        apiFetch('/api/professional/therapies'),
+        apiFetch('/api/professional/patients'),
       ]);
       const tData = tRes.ok ? await tRes.json() : [];
       const pData = pRes.ok ? await pRes.json() : [];
@@ -58,9 +55,9 @@ export default function TerapiasPro() {
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch(`${API_URL}/api/professional/therapies`, {
+      const res = await apiFetch('/api/professional/therapies', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
           childId: form.childId,
