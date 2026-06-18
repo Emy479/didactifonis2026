@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../config.js';
 
 const REDIRECT_MAP = {
   tutor: '/tutor',
@@ -23,16 +24,18 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:3001/api/auth/login', {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        login(data.token, data.user);
+        // El contrato B3 devuelve `accessToken` (antes era `token`).
+        login(data.accessToken, data.user);
         navigate(REDIRECT_MAP[data.user.role] ?? '/');
       } else {
         setError(data.message || 'Credenciales incorrectas');
