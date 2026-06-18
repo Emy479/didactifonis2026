@@ -26,7 +26,7 @@ class LocalDiskStorage {
 
   replace(activityId, tempDir) {
     const dest = this._dirFor(activityId);
-    const backup = dest + '.old-' + Date.now();
+    const backup = path.join(this.baseDir, '.old-' + String(activityId) + '-' + Date.now());
     if (fs.existsSync(dest)) fs.renameSync(dest, backup);
     try {
       fs.renameSync(tempDir, dest);
