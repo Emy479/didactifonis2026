@@ -216,7 +216,12 @@ async function refresh(req, res, next) {
         { $set: { revoked: true, revokedAt: new Date() } }
       );
       // Limpia la cookie del atacante también
-      res.clearCookie('refresh_token', { path: '/api/auth' });
+      res.clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+        path: '/api/auth',
+      });
       return res.status(401).json({ message: 'Sesión revocada por reuso de token' });
     }
 
