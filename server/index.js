@@ -21,6 +21,7 @@ const progressRouter = require('./routes/progress');
 const linkRouter = require('./routes/link');
 const directoryRouter = require('./routes/directory');
 const messagesRouter = require('./routes/messages');
+const gameStorage = require('./storage');
 
 const app = express();
 
@@ -94,7 +95,19 @@ if (mongoUri) {
   console.warn('MONGODB_URI no definida — servidor iniciado sin base de datos');
 }
 
+// M3: barrer huérfanos .tmp-* / .old-* antes de arrancar.
+// Un crash durante upload/replace puede dejar esas carpetas; se limpian al inicio.
+// Fallo no fatal: si el sweep lanza, se loguea y el server sigue arrancando.
+try {
+  const orphansRemoved = gameStorage.sweepOrphans();
+  console.log(`[startup] sweep de bundles huérfanos: ${orphansRemoved} borrados`);
+} catch (sweepErr) {
+  console.warn('[startup] sweep de bundles falló (no fatal):', sweepErr.message);
+}
+
 const PORT = process.env.PORT || 3001;
+const GAME_PUBLIC_PORT = process.env.GAME_PUBLIC_PORT || 3002;
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 const ENV = process.env.NODE_ENV || 'development';
 
 // BAJO-2: validar API_BASE_URL al arranque.
@@ -145,4 +158,31 @@ app.use((err, req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT} [${ENV}]`);
+});
+
+// ── Servidor dedicado de bundles de juego (A1: origen separado del de la API) ──
+// Los bundles HTML/JS son contenido externo no confiable. Servirlos desde un
+// origen propio (GAME_PUBLIC_PORT) los aísla del origen de la API y evita que
+// scripts del juego puedan acceder a cookies/auth del origen API.
+// En producción GAME_PUBLIC_PORT corre detrás de un reverse-proxy que lo expone
+// como https://juegos.<dominio> (GAME_PUBLIC_ORIGIN).
+const gameApp = express();
+
+gameApp.use(
+  '/games',
+  (req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    // A2: frame-ancestors acotado al origen del cliente, no wildcard.
+    res.setHeader(
+      'Content-Security-Policy',
+      `default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors ${CLIENT_ORIGIN}`
+    );
+    next();
+  },
+  express.static(gameStorage.root(), { index: false, dotfiles: 'deny' })
+);
+
+gameApp.listen(GAME_PUBLIC_PORT, () => {
+  console.log(`Bundles de juego servidos en puerto ${GAME_PUBLIC_PORT} (origen dedicado)`);
 });

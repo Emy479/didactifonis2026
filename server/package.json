@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "test": "node --test",
     "seed:demo": "node scripts/seedDemo.js",
     "seed:smoke-e2": "node scripts/seedSmokeE2.js",
     "migrate:score-fields": "node scripts/migrateScoreFields.js"
@@ -20,9 +21,12 @@
     "express-rate-limit": "^7.3.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^8.4.1"
+    "mongoose": "^8.4.1",
+    "multer": "^2.2.0",
+    "yauzl": "^3.4.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "yazl": "^3.3.1"
   }
 }

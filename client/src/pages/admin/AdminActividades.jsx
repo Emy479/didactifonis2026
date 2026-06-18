@@ -16,7 +16,7 @@ const NIVEL_COLOR = {
 const FORM_INICIAL = {
   title: '', type: 'fonema', therapeuticGoal: '', difficultyLevel: 1,
   ageMin: '', ageMax: '', durationMinutes: '', availableToTutors: false,
-  thumbnailUrl: '', bundleUrl: '',
+  thumbnailUrl: '',
 };
 
 export default function AdminActividades() {
@@ -29,6 +29,8 @@ export default function AdminActividades() {
   const [form, setForm] = useState(FORM_INICIAL);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [bundleFile, setBundleFile] = useState(null);
+  const [errorDetails, setErrorDetails] = useState([]);
   const LIMIT = 15;
 
   const token = localStorage.getItem('auth_token');
@@ -51,6 +53,8 @@ export default function AdminActividades() {
     setEditTarget(null);
     setForm(FORM_INICIAL);
     setError('');
+    setBundleFile(null);
+    setErrorDetails([]);
     setShowModal(true);
   };
 
@@ -66,9 +70,10 @@ export default function AdminActividades() {
       durationMinutes: act.durationMinutes ?? '',
       availableToTutors: act.availableToTutors,
       thumbnailUrl: act.thumbnailUrl || '',
-      bundleUrl: act.bundleUrl || '',
     });
     setError('');
+    setBundleFile(null);
+    setErrorDetails([]);
     setShowModal(true);
   };
 
@@ -76,31 +81,80 @@ export default function AdminActividades() {
     e.preventDefault();
     setSubmitting(true);
     setError('');
+    setErrorDetails([]);
     try {
-      const body = {
-        title: form.title,
-        type: form.type,
-        therapeuticGoal: form.therapeuticGoal || null,
-        difficultyLevel: Number(form.difficultyLevel),
-        ageRange: {
-          min: form.ageMin !== '' ? Number(form.ageMin) : null,
-          max: form.ageMax !== '' ? Number(form.ageMax) : null,
-        },
-        durationMinutes: form.durationMinutes !== '' ? Number(form.durationMinutes) : null,
-        availableToTutors: form.availableToTutors,
-        thumbnailUrl: form.thumbnailUrl || null,
-        bundleUrl: form.bundleUrl || null,
-      };
+      if (!editTarget) {
+        // ── Crear: subir ZIP (multipart) ──
+        if (!bundleFile) {
+          throw new Error('Debes seleccionar el archivo .zip del juego.');
+        }
+        const fd = new FormData();
+        fd.append('bundle', bundleFile);
+        fd.append('type', form.type);
+        fd.append('difficultyLevel', String(form.difficultyLevel));
+        fd.append('therapeuticGoal', form.therapeuticGoal || '');
+        fd.append('availableToTutors', String(form.availableToTutors));
+        const res = await fetch(`${API_URL}/api/activities/upload`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` }, // NO fijar Content-Type: el navegador pone el boundary
+          body: fd,
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          if (Array.isArray(err.details)) setErrorDetails(err.details);
+          throw new Error(err.message || 'Error al subir el juego');
+        }
+      } else {
+        // ── Editar metadatos (sin bundle) ──
+        const body = {
+          title: form.title,
+          type: form.type,
+          therapeuticGoal: form.therapeuticGoal || null,
+          difficultyLevel: Number(form.difficultyLevel),
+          ageRange: {
+            min: form.ageMin !== '' ? Number(form.ageMin) : null,
+            max: form.ageMax !== '' ? Number(form.ageMax) : null,
+          },
+          durationMinutes: form.durationMinutes !== '' ? Number(form.durationMinutes) : null,
+          availableToTutors: form.availableToTutors,
+          thumbnailUrl: form.thumbnailUrl || null,
+        };
+        const res = await fetch(`${API_URL}/api/activities/${editTarget._id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || 'Error al guardar');
+        }
+      }
+      setShowModal(false);
+      fetchData();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-      const url = editTarget
-        ? `${API_URL}/api/activities/${editTarget._id}`
-        : `${API_URL}/api/activities`;
-      const method = editTarget ? 'PUT' : 'POST';
-
-      const res = await fetch(url, { method, headers, body: JSON.stringify(body) });
+  const handleReplaceBundle = async (file) => {
+    if (!file || !editTarget) return;
+    setSubmitting(true);
+    setError('');
+    setErrorDetails([]);
+    try {
+      const fd = new FormData();
+      fd.append('bundle', file);
+      const res = await fetch(`${API_URL}/api/activities/${editTarget._id}/bundle`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      });
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || 'Error al guardar');
+        const err = await res.json().catch(() => ({}));
+        if (Array.isArray(err.details)) setErrorDetails(err.details);
+        throw new Error(err.message || 'Error al reemplazar el bundle');
       }
       setShowModal(false);
       fetchData();
@@ -229,10 +283,11 @@ export default function AdminActividades() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <Field label="Título" required>
-                <input type="text" required value={form.title}
+              <Field label={editTarget ? 'Título' : 'Título (se tomará del manifest del juego)'} required={!!editTarget}>
+                <input type="text" required={!!editTarget} value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className={INPUT_CLASS} placeholder="Ej: Espejo mágico" />
+                  disabled={!editTarget}
+                  className={INPUT_CLASS} placeholder={editTarget ? 'Ej: Espejo mágico' : 'Se completa desde el .zip'} />
               </Field>
 
               <div className="grid grid-cols-2 gap-4">
@@ -284,11 +339,44 @@ export default function AdminActividades() {
                   className={INPUT_CLASS} placeholder="https://..." />
               </Field>
 
-              <Field label="URL bundle / juego (placeholder)">
-                <input type="text" value={form.bundleUrl}
-                  onChange={(e) => setForm({ ...form, bundleUrl: e.target.value })}
-                  className={INPUT_CLASS} placeholder="https://..." />
-              </Field>
+              {!editTarget ? (
+                <Field label="Archivo del juego (.zip)" required>
+                  <input
+                    type="file"
+                    accept=".zip,application/zip"
+                    required
+                    onChange={(e) => setBundleFile(e.target.files?.[0] || null)}
+                    className={INPUT_CLASS}
+                  />
+                  <p className="font-body text-xs text-text-soft mt-1">
+                    Sube el .zip exportado por el Engine. El título, la edad y la duración se toman del manifest.
+                  </p>
+                </Field>
+              ) : (
+                <Field label="Reemplazar bundle del juego">
+                  <input
+                    type="file"
+                    accept=".zip,application/zip"
+                    onChange={(e) => setBundleFile(e.target.files?.[0] || null)}
+                    className={INPUT_CLASS}
+                  />
+                  {bundleFile && (
+                    <div className="mt-2 flex items-center gap-3">
+                      <span className="font-body text-xs text-text-soft truncate max-w-[180px]">{bundleFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleReplaceBundle(bundleFile)}
+                        className="font-body text-xs text-white bg-primary rounded-xl px-4 py-2 hover:opacity-90 transition"
+                      >
+                        Confirmar reemplazo de bundle
+                      </button>
+                    </div>
+                  )}
+                  <p className="font-body text-xs text-text-soft mt-1">
+                    Versión actual: {editTarget.gameVersion || '—'}. Subir un .zip reemplaza el juego (mismo gameId).
+                  </p>
+                </Field>
+              )}
 
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={form.availableToTutors}
@@ -298,6 +386,13 @@ export default function AdminActividades() {
               </label>
 
               {error && <p className="font-body text-sm text-red-500">{error}</p>}
+              {errorDetails.length > 0 && (
+                <ul className="font-body text-xs text-red-500 list-disc pl-5 space-y-0.5">
+                  {errorDetails.map((d, i) => (
+                    <li key={i}>{d}</li>
+                  ))}
+                </ul>
+              )}
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)}

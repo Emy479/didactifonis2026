@@ -32,3 +32,6 @@ coverage/
 .claude/
 .agents/
 skills-lock.json
+
+# Bundles de juego subidos (datos en runtime, no versionar)
+server/storage-data/
