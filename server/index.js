@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 
@@ -33,6 +34,9 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [],
   credentials: true,
 }));
+
+// Parseo de cookies: requerido para leer el refresh_token httpOnly en /api/auth/refresh y /api/auth/logout
+app.use(cookieParser());
 
 // ALTO-2: el endpoint /api/activities/results requiere un payload de hasta 256kb
 // (score + hasta EVENTS_INGEST_CAP eventos). Se monta su parser de 256kb ANTES
