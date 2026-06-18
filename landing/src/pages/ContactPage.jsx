@@ -35,12 +35,16 @@ function CheckCircleIcon() {
   )
 }
 
-const initialForm = { nombre: '', email: '', motivo: '', mensaje: '' }
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+
+const initialForm = { nombre: '', email: '', motivo: '', mensaje: '', website: '' }
 
 export default function ContactPage() {
   const [form, setForm] = useState(initialForm)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
 
   function validate() {
     const next = {}
@@ -61,14 +65,44 @@ export default function ContactPage() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }))
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     const next = validate()
     if (Object.keys(next).length > 0) {
       setErrors(next)
       return
     }
-    setSubmitted(true)
+    setLoading(true)
+    setSubmitError(null)
+    try {
+      const res = await fetch(`${API_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          email: form.email,
+          motivo: form.motivo,
+          mensaje: form.mensaje,
+          website: form.website,
+        }),
+      })
+      if (res.ok) {
+        setSubmitted(true)
+      } else {
+        let msg = 'Ocurrió un error al enviar el mensaje. Intenta nuevamente.'
+        try {
+          const data = await res.json()
+          if (data && data.message) msg = data.message
+        } catch (_) {
+          // usar fallback
+        }
+        setSubmitError(msg)
+      }
+    } catch (_) {
+      setSubmitError('No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const inputBase =
@@ -114,7 +148,7 @@ export default function ContactPage() {
                     Gracias, te contactaremos pronto.
                   </p>
                   <button
-                    onClick={() => { setForm(initialForm); setSubmitted(false) }}
+                    onClick={() => { setForm(initialForm); setSubmitted(false); setSubmitError(null) }}
                     className="mt-6 font-body text-sm text-primary hover:underline"
                   >
                     Enviar otro mensaje
@@ -198,12 +232,29 @@ export default function ContactPage() {
                     )}
                   </div>
 
+                  {/* Honeypot anti-bot — oculto para humanos, invisible y no tabulable */}
+                  <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}>
+                    <input
+                      type="text"
+                      name="website"
+                      value={form.website}
+                      onChange={handleChange}
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
+                  </div>
+
                   <button
                     type="submit"
-                    className="w-full font-heading font-semibold bg-gradient-main text-white py-3.5 rounded-button hover:opacity-90 transition-opacity text-base"
+                    disabled={loading}
+                    className="w-full font-heading font-semibold bg-gradient-main text-white py-3.5 rounded-button hover:opacity-90 transition-opacity text-base disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Enviar mensaje
+                    {loading ? 'Enviando...' : 'Enviar mensaje'}
                   </button>
+
+                  {submitError && (
+                    <p className="font-body text-xs text-red-500 mt-1">{submitError}</p>
+                  )}
                 </form>
               )}
             </div>
@@ -257,8 +308,10 @@ export default function ContactPage() {
 
               {/* Nota de privacidad */}
               <p className="font-body text-xs text-text-soft leading-relaxed px-1">
-                Al enviar este formulario aceptas que tus datos sean utilizados para
-                responderte. No los compartimos con terceros. Consulta nuestra{' '}
+                Al enviar este formulario, usamos tu nombre y correo únicamente para
+                responderte. El mensaje se entrega a través de un proveedor de correo
+                electrónico; no usamos tus datos con fines comerciales ni los cedemos a
+                terceros. Consulta nuestra{' '}
                 <a href="/privacidad" className="text-primary hover:underline">
                   política de privacidad
                 </a>
