@@ -69,9 +69,52 @@ router.get('/conversations', async (req, res, next) => {
   }
 });
 
+// ── Helper: parsear y validar parámetros de paginación ──────────────────────
+// Exportado para tests unitarios puros (sin DB).
+// Decisión sobre `before` inválido: se ignora (null) y se devuelve la página
+// más reciente. Esto es más robusto para clientes con datos desincronizados.
+function parseMessagesPagination(query) {
+  const DEFAULT_LIMIT = 50;
+  const MIN_LIMIT = 1;
+  const MAX_LIMIT = 100;
+
+  // Parsear limit: si falta o no es entero positivo válido → default.
+  let limit = DEFAULT_LIMIT;
+  if (query.limit !== undefined) {
+    const parsed = parseInt(query.limit, 10);
+    if (!isNaN(parsed) && parsed >= MIN_LIMIT) {
+      limit = Math.min(parsed, MAX_LIMIT);
+    }
+    // Si parsed < MIN_LIMIT o NaN → queda DEFAULT_LIMIT (se ignora el valor inválido).
+    // Clamp a MIN_LIMIT se aplica también: valores < 1 quedan en DEFAULT.
+    if (!isNaN(parsed) && parsed < MIN_LIMIT) {
+      limit = MIN_LIMIT;
+    }
+  }
+
+  // Parsear before: timestamp ISO o nulo.
+  // Decisión: before inválido → null (se ignora, devuelve página más reciente).
+  let before = null;
+  if (query.before !== undefined && query.before !== '') {
+    const d = new Date(query.before);
+    if (!isNaN(d.getTime())) {
+      before = d;
+    }
+    // before inválido: null (ignorar silenciosamente).
+  }
+
+  return { limit, before };
+}
+
 // ── GET /api/messages/:invitationId ─────────────────────────────────────────
-// Devuelve los mensajes de un hilo ordenados por fecha ascendente.
-// Marca como leídos los mensajes donde el usuario es el destinatario.
+// Devuelve los N mensajes más recientes del hilo en orden ascendente (compatible
+// con el frontend actual que espera un array).
+// Query params:
+//   limit  - entero [1, 100], default 50.
+//   before - timestamp ISO; si viene, trae mensajes con createdAt < before
+//            (útil para "cargar más antiguos"). Si es inválido, se ignora.
+// El marcado de leídos se aplica sobre TODO el hilo (no solo la página) para
+// que el badge del /conversations quede limpio aunque la página sea parcial.
 router.get('/:invitationId', async (req, res, next) => {
   try {
     const userId = req.user._id;
@@ -81,31 +124,38 @@ router.get('/:invitationId', async (req, res, next) => {
       return res.status(403).json({ message: 'Sin acceso a este hilo de mensajería' });
     }
 
-    // Obtener mensajes ordenados por fecha.
-    const mensajes = await Message.find({ invitationId: invitation._id })
-      .sort({ createdAt: 1 })
+    const { limit, before } = parseMessagesPagination(req.query);
+
+    // Construir filtro base.
+    const filtro = { invitationId: invitation._id };
+    if (before) {
+      filtro.createdAt = { $lt: before };
+    }
+
+    // Obtener los N más recientes (desc) y luego invertir a ascendente para el render.
+    const mensajes = await Message.find(filtro)
+      .sort({ createdAt: -1 })
+      .limit(limit)
       .populate('senderId', 'name')
       .populate('receiverId', 'name')
       .lean();
 
-    // Marcar como leídos los mensajes dirigidos al usuario que aún no tienen readAt.
-    const ahora = new Date();
-    const idsNoLeidos = mensajes
-      .filter((m) => m.receiverId._id.toString() === userId.toString() && !m.readAt)
-      .map((m) => m._id);
+    mensajes.reverse(); // ascendente para el frontend.
 
-    if (idsNoLeidos.length > 0) {
-      await Message.updateMany(
-        { _id: { $in: idsNoLeidos } },
-        { $set: { readAt: ahora } }
-      );
-      // Actualizar en memoria para reflejar el readAt en la respuesta.
-      mensajes.forEach((m) => {
-        if (idsNoLeidos.some((id) => id.toString() === m._id.toString())) {
-          m.readAt = ahora;
-        }
-      });
-    }
+    // Marcar como leídos TODOS los mensajes no leídos del hilo dirigidos al usuario,
+    // no solo los de la página. Así el badge del /conversations siempre queda limpio.
+    const ahora = new Date();
+    await Message.updateMany(
+      { invitationId: invitation._id, receiverId: userId, readAt: null },
+      { $set: { readAt: ahora } }
+    );
+
+    // Reflejar el readAt en los mensajes de la página que correspondan.
+    mensajes.forEach((m) => {
+      if (m.receiverId._id.toString() === userId.toString() && !m.readAt) {
+        m.readAt = ahora;
+      }
+    });
 
     return res.json(mensajes);
   } catch (err) {
@@ -154,3 +204,4 @@ router.post('/', async (req, res, next) => {
 });
 
 module.exports = router;
+module.exports.parseMessagesPagination = parseMessagesPagination;
