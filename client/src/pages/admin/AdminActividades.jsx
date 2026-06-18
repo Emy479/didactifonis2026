@@ -366,7 +366,7 @@ export default function AdminActividades() {
                       <button
                         type="button"
                         onClick={() => handleReplaceBundle(bundleFile)}
-                        className="font-body text-xs text-white bg-primary rounded-lg px-4 py-2 hover:opacity-90 transition"
+                        className="font-body text-xs text-white bg-primary rounded-xl px-4 py-2 hover:opacity-90 transition"
                       >
                         Confirmar reemplazo de bundle
                       </button>

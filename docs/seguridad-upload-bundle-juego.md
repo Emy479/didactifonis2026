@@ -7,6 +7,18 @@
 
 **APTO CON OBSERVACIONES.** Sin incumplimiento legal crítico ni exposición directa de datos de menores: la minimización de PII hacia el iframe se respeta y no se introduce IA diagnóstica (frontera SaMD intacta). Conteo: **0 Críticos · 2 Altos · 4 Medios · 5 Bajos.**
 
+> **Actualización (2026-06-17) — tanda de endurecimiento aplicada.** Por decisión de
+> Emiliano se endurecieron todos los hallazgos accionables antes del merge
+> (`docs/superpowers/plans/2026-06-17-upload-bundle-hardening.md`):
+> - **A1 — RESUELTO:** bundles servidos desde un **origen dedicado** (`GAME_PUBLIC_ORIGIN`,
+>   puerto propio; subdominio vía reverse-proxy en producción). La API ya no sirve `/games`.
+> - **A2 — RESUELTO:** `frame-ancestors` acotado a `CLIENT_ORIGIN` (ya no `*`).
+> - **M1 — RESUELTO:** entradas de directorio cuentan contra el tope de zip-bomb.
+> - **M2 — RESUELTO:** backups de swap renombrados con punto inicial (ocultos por `dotfiles:'deny'`).
+> - **M3 — RESUELTO:** sweep de huérfanos `.tmp-*`/`.old-*` al arranque.
+> - **M4 — RESUELTO:** `uploadLimiter` (20 req/15 min) en los endpoints de subida.
+> Los 5 hallazgos Bajos quedan como endurecimiento opcional posterior.
+
 ## Hallazgos Altos
 
 ### A1 — Aislamiento del bundle servido co-origen con la API
