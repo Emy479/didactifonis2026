@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_URL } from '../../config';
+import { apiFetch } from '../../lib/apiFetch.js';
 
 export default function AdminProfesionales() {
   const [users, setUsers] = useState([]);
@@ -8,15 +8,11 @@ export default function AdminProfesionales() {
   const [page, setPage] = useState(1);
   const LIMIT = 15;
 
-  const token = localStorage.getItem('auth_token');
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${API_URL}/api/admin/users?role=profesional&page=${page}&limit=${LIMIT}`,
-        { headers }
+      const res = await apiFetch(
+        `/api/admin/users?role=profesional&page=${page}&limit=${LIMIT}`
       );
       const data = await res.json();
       setUsers(data.users || []);
@@ -29,9 +25,8 @@ export default function AdminProfesionales() {
 
   const toggleStatus = async (userId, currentStatus) => {
     try {
-      await fetch(`${API_URL}/api/admin/users/${userId}/status`, {
+      await apiFetch(`/api/admin/users/${userId}/status`, {
         method: 'PATCH',
-        headers,
         body: JSON.stringify({ isActive: !currentStatus }),
       });
       fetchData();
