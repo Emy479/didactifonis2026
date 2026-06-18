@@ -25,6 +25,14 @@ function horaFormato(iso) {
   return new Date(iso).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
 }
 
+// Firma ligera de la lista de conversaciones para detectar cualquier cambio
+// (nueva conv, mensaje nuevo en cualquier posición, cambio de badge noLeidos).
+function firmaConversaciones(lista) {
+  return lista
+    .map((c) => `${c.invitation?._id}:${c.ultimoMensaje?._id ?? ''}:${c.noLeidos ?? 0}`)
+    .join('|');
+}
+
 // ── Lista de conversaciones ───────────────────────────────────────────────────
 
 function ListaConversaciones({ conversaciones, cargando, error, seleccionada, onSeleccionar }) {
@@ -328,16 +336,9 @@ export default function MensajesPro() {
       if (!res.ok) return;
       const data = await res.json();
       if (!Array.isArray(data)) return;
-      setConversaciones((prev) => {
-        // Compara cantidad de conversaciones y el _id del último mensaje de la primera
-        // (proxy barato de "algo cambió") para evitar re-renders innecesarios.
-        const primerUltimoId = data[0]?.ultimoMensaje?._id;
-        const prevPrimerUltimoId = prev[0]?.ultimoMensaje?._id;
-        if (data.length === prev.length && primerUltimoId === prevPrimerUltimoId) {
-          return prev;
-        }
-        return data;
-      });
+      setConversaciones((prev) =>
+        firmaConversaciones(prev) === firmaConversaciones(data) ? prev : data
+      );
     } catch {
       // fallo silencioso
     }
