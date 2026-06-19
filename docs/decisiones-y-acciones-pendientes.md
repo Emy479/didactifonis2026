@@ -147,6 +147,16 @@ checklist de despliegue (Fase A/D). CDN queda como opción futura si el volumen 
 `resultsEndpoint` relativo en dev. No bloquea (la ingesta va por el host), pero debe quedar
 fijado en la config de staging/prod. Anotado como pendiente de despliegue.
 
+### 4.1.editor 🟠 Editor de autoría — COMPROMETIDO v1 (2026-06-18)
+**Decisión de Emiliano:** construir el **editor v1 completo** para **autores externos no
+técnicos**. Eso justifica **Electron** (app de escritorio: UX pulida, distribución,
+auto-update), el camino más caro/arriesgado del brief — decisión consciente, contra la
+recomendación de diferir/Fase-0 del Tech Lead. Brief de scoping:
+`docs/brief-editor-autoria-electron.md`. **Forma de ejecución acordada: por fases con
+incrementos verificables, NO big-bang** (el plan maestro lo exige). Plan de implementación
+por fases en redacción. Recordatorio del Tech Lead: el cuello de botella para juegos
+*publicables* sigue siendo arte/audio (acción externa), independiente del editor.
+
 ### 4.1.quater ✅ Piloto 2 "La Máquina del Tiempo Verbal" (1-de-3) — en master del engine
 **Estado (2026-06-18, engine `5f6e3c8`).** Segundo juego-piloto y segunda primitiva de
 interacción (selección 1-de-3, edad 7+, tiempos verbales regulares). **Confirma la tesis
