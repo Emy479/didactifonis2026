@@ -143,6 +143,20 @@ comisionar.
 **Decisión (2026-06-18): reverse-proxy a subdominio** (`juegos.tudominio.cl`), ya soportado
 por `GAME_PUBLIC_ORIGIN`. Hoy `:3002` con `express.static` es solo dev. Reflejado en el
 checklist de despliegue (Fase A/D). CDN queda como opción futura si el volumen lo justifica.
+**Nota de config (de la E2E del Piloto 2):** `API_BASE_URL` sin definir deja el
+`resultsEndpoint` relativo en dev. No bloquea (la ingesta va por el host), pero debe quedar
+fijado en la config de staging/prod. Anotado como pendiente de despliegue.
+
+### 4.1.quater ✅ Piloto 2 "La Máquina del Tiempo Verbal" (1-de-3) — en master del engine
+**Estado (2026-06-18, engine `5f6e3c8`).** Segundo juego-piloto y segunda primitiva de
+interacción (selección 1-de-3, edad 7+, tiempos verbales regulares). **Confirma la tesis
+data-driven:** la plantilla `RoundActivity` alojó la primitiva nueva con ~12 líneas
+aditivas; el molde 2/1/0 no se tocó. Incluye tildes RAE correctas y la consolidación de
+`x_audio_replayed` por el orquestador (deuda heredada del Piloto 1, saldada en ambas
+escenas). QA regresión-cero (Casa Mágica intacta) + security apto. E2E server-side real
+verde. **Para publicar falta** (igual que Piloto 1): arte/audio reales (acción externa) y la
+pata navegador→postMessage de la `ChoiceScene` ejercitada con click real (hoy cubierta por
+equivalencia de contrato, como en E5). Brief: `docs/brief-piloto2-maquina-tiempo-verbal.md`.
 
 ### 4.1.ter 🟡 D-E5-3 — Estrategia de test del ciclo de publicación
 **Decisión (2026-06-18): test de integración server-side** para CI (upload→validar→sessions
